@@ -19,8 +19,8 @@ ColorPicker::ColorPicker(QWidget *parent) :
         currentButton->setFixedHeight(30);
         currentButton->setCheckable(true);
         currentButton->setStyleSheet(
-            "QPushButton {background-color: " + colorList.at(i) + "; border: 6px solid white;}" +
-            "QPushButton:checked {background-color: " + colorList.at(i) + "; border: 1px solid white}"
+            "QPushButton {background-color: " + colorList.at(i) + "; border: 2px solid white;}" +
+            "QPushButton:checked {background-color: " + colorList.at(i) + "; border: 3px double #444444}"
         );
 
         colorGroup->addButton(currentButton);

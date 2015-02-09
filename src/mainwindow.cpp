@@ -8,12 +8,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Create widgets
     this->imageView = new QLabel("image");
-    this->imageView->setMinimumSize(1000, 600);
+    //this->imageView->setMinimumSize(1000, 600);
     Pal.setColor(QPalette::Background, Qt::black);
     imageView->setAutoFillBackground(true);
     imageView->setPalette(Pal);
 
     this->thumbnailsList = new QListWidget();
+    this->thumbnailsList->setFixedHeight(130);
     this->thumbnailsList->setFlow(QListView::LeftToRight);
     this->thumbnailsList->addItem("Gilbert");
     this->thumbnailsList->addItem("Maximilien");
@@ -55,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
     drawLayout->setRowStretch(6, 5);
 
     this->drawBar = new QWidget();
+    this->drawBar->setFixedWidth(150);
     this->drawBar->setLayout(drawLayout);
 
     this->controlsBar = new QWidget();
@@ -76,21 +78,21 @@ MainWindow::MainWindow(QWidget *parent)
     controlsLayout->addWidget(this->buttonBegin);
     controlsLayout->addWidget(this->buttonBack);
 
-    controlsLayout->addSpacerItem(new QSpacerItem(50, 50));
+    controlsLayout->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
     controlsLayout->addWidget(new QLabel("Image courante: "));
     controlsLayout->addWidget(this->frameNumber);
     controlsLayout->addWidget(this->buttonGoFrame);
 
-    controlsLayout->addSpacerItem(new QSpacerItem(50, 50));
+    controlsLayout->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Minimum,QSizePolicy::Minimum));
     controlsLayout->addWidget(this->numberPreviousFrames);
     controlsLayout->addWidget(this->buttonPlayDraws);
 
-    controlsLayout->addSpacerItem(new QSpacerItem(50, 50));
+    controlsLayout->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Minimum,QSizePolicy::Minimum));
     controlsLayout->addWidget(this->labelWithMovie);
     controlsLayout->addWidget(this->checkPlayWithMovie);
     controlsLayout->addWidget(this->buttonPlayFull);
 
-    controlsLayout->addSpacerItem(new QSpacerItem(50, 50));
+    controlsLayout->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Minimum,QSizePolicy::Minimum));
     controlsLayout->addWidget(this->buttonNext);
     controlsLayout->addWidget(this->buttonEnd);
 
@@ -102,7 +104,9 @@ MainWindow::MainWindow(QWidget *parent)
     mainLayout->addWidget(this->controlsBar, 1, 0);
     mainLayout->addWidget(this->drawBar, 0, 1, 2, 1);
     mainLayout->addWidget(this->thumbnailsList,2, 0, 1, 2);
-
+    //mainLayout->setSpacing(0);
+    //mainLayout->setMargin(0);
+    //mainLayout->getContentsMargins(2,2,2,2);
     QWidget* mainWidget = new QWidget();
     mainWidget->setLayout(mainLayout);
 
@@ -112,7 +116,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->setCentralWidget(mainWidget);
     this->setWindowTitle(tr("GerardRoto"));
-    this->setMinimumSize(1170, 827);
+    this->setMinimumSize(1000, 720);
 }
 
 void MainWindow::createActions()
@@ -175,21 +179,21 @@ void MainWindow::createActions()
      connect(peelingsNumberAction, SIGNAL(triggered()), this, SLOT(peelingsNumber()));
 
      // Goto menu
-     this->beginAction = new QAction(tr("&Début"), this);
-     this->beginAction->setShortcut(Qt::SHIFT + Qt::LeftArrow);
-     connect(beginAction, SIGNAL(triggered()), this, SLOT(begin()));
-
-     this->endAction = new QAction(tr("&Fin"), this);
-     this->endAction->setShortcut(Qt::SHIFT + Qt::RightArrow);
-     connect(endAction, SIGNAL(triggered()), this, SLOT(end()));
-
      this->backAction = new QAction(tr("&Image précédente"), this);
-     this->backAction->setShortcut(Qt::LeftArrow);
+     this->backAction->setShortcut(Qt::Key_Left);
      connect(backAction, SIGNAL(triggered()), this, SLOT(back()));
 
      this->nextAction = new QAction(tr("&Image suivante"), this);
-     this->nextAction->setShortcut(Qt::RightArrow);
+     this->nextAction->setShortcut(Qt::Key_Right);
      connect(nextAction, SIGNAL(triggered()), this, SLOT(next()));
+
+     this->beginAction = new QAction(tr("&Début"), this);
+     this->beginAction->setShortcut(Qt::CTRL + Qt::Key_Left);
+     connect(beginAction, SIGNAL(triggered()), this, SLOT(begin()));
+
+     this->endAction = new QAction(tr("&Fin"), this);
+     this->endAction->setShortcut(Qt::CTRL + Qt::Key_Right);
+     connect(endAction, SIGNAL(triggered()), this, SLOT(end()));
 
      // Viewing menu
      this->playFromBeginningAction = new QAction(tr("&Défillement dessins"), this);
@@ -239,12 +243,12 @@ void MainWindow::createMenus()
 
      // Goto menu
      this->gotoMenu = menuBar()->addMenu(tr("&Aller à"));
-     this->gotoMenu->addAction(beginAction);
-     this->gotoMenu->addAction(endAction);
-
-     this->gotoMenu->addSeparator();
      this->gotoMenu->addAction(backAction);
      this->gotoMenu->addAction(nextAction);
+
+     this->gotoMenu->addSeparator();
+     this->gotoMenu->addAction(beginAction);
+     this->gotoMenu->addAction(endAction);
 
      // Viewing menu
      this->viewingMenu = menuBar()->addMenu(tr("&Visionnage"));
