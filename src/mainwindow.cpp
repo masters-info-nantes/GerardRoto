@@ -16,9 +16,26 @@ MainWindow::MainWindow(QWidget *parent)
     this->thumbnailsList = new QListWidget();
     this->thumbnailsList->setFixedHeight(130);
     this->thumbnailsList->setFlow(QListView::LeftToRight);
-    this->thumbnailsList->addItem("Gilbert");
-    this->thumbnailsList->addItem("Maximilien");
-    this->thumbnailsList->addItem("Marcel");
+    //this->thumbnailsList->setSpacing(10);
+
+    for(int i = 1; i < 22; i++){
+        // Bad way with nice look
+        QLabel* thumbLabel = new QLabel();
+        thumbLabel->setAlignment(Qt::AlignCenter);
+
+        QPixmap* thumbFull = new QPixmap(QDir::currentPath() + "/../img/thumbs/hd-"+ QString::number(i) +".jpeg");
+        QPixmap thumbScaled(thumbFull->scaledToHeight(100));
+
+        thumbLabel->setPixmap(thumbScaled);
+        thumbLabel->setMinimumSize(QSize(thumbScaled.width(), thumbScaled.height()));
+
+        QListWidgetItem* listItem = new QListWidgetItem(this->thumbnailsList);
+        listItem->setSizeHint(QSize(thumbLabel->minimumWidth()+ 30, thumbLabel->minimumHeight()));
+
+        this->thumbnailsList->addItem(listItem);
+        this->thumbnailsList->setItemWidget(listItem, thumbLabel);
+
+    }
 
     QGridLayout* drawLayout = new QGridLayout();
     this->buttonFreeDraw = new QPushButton(".");

@@ -1,2 +1,7 @@
-build-GerardRoto-Desktop-Debug/*
-img/*
+build*
+src/moc*.cpp
+src/*.o
+.qmake.stash
+*.pro.user*
+*.app
+Makefile

@@ -18,6 +18,7 @@
 #include <QButtonGroup>
 #include <QFileDialog>
 #include <colorpicker.h>
+//#include "imagewidget.h"
 #include "stackimage.h"
 
 class MainWindow : public QMainWindow
