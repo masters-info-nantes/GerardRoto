@@ -2,9 +2,15 @@ QT += widgets
 
 HEADERS += \
     mainwindow.h \
-    colorpicker.h
+    colorpicker.h \
+    drawzone.h \
+    stackimage.h \
+    imagewidget.h
 
 SOURCES += \
     mainwindow.cpp \
     main.cpp \
-    colorpicker.cpp
+    colorpicker.cpp \
+    drawzone.cpp \
+    stackimage.cpp \
+    imagewidget.cpp
