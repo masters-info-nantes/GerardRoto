@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "drawzone.h"
 
 MainWindow::MainWindow(QWidget *parent)
     :QMainWindow(parent)
@@ -7,11 +8,10 @@ MainWindow::MainWindow(QWidget *parent)
     Pal.setColor(QPalette::Background, Qt::black);
 
     // Create widgets
-    this->imageView = new QLabel("image");
-    //this->imageView->setMinimumSize(1000, 600);
-    Pal.setColor(QPalette::Background, Qt::black);
-    imageView->setAutoFillBackground(true);
-    imageView->setPalette(Pal);
+    this->imageView = new StackImage();
+    this->imageView->push(new DrawZone(1000,600));
+    this->imageView->push("../img/fedora2.png");
+    this->imageView->push("../img/hd-1.jpeg");
 
     this->thumbnailsList = new QListWidget();
     this->thumbnailsList->setFixedHeight(130);

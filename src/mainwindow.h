@@ -18,6 +18,7 @@
 #include <QButtonGroup>
 #include <QFileDialog>
 #include <colorpicker.h>
+#include "stackimage.h"
 
 class MainWindow : public QMainWindow
 {
@@ -53,7 +54,8 @@ private:
     QAction* playWithMovieAction;
     QAction* aboutAction;
 
-    QLabel* imageView;
+    //QLabel* imageView;
+    StackImage* imageView;
 
     QWidget* controlsBar;
     QPushButton* buttonBegin;

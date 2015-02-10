@@ -16,7 +16,7 @@ public:
     QWidget* getTopElement();
     void push(QWidget* img);
     void push(QLayoutItem* img);
-    void push(QString imgName, int scaledHeight);
+    void push(QString imgName);
     void removeAll();
     void removeBottom();
     void removeMiddle();

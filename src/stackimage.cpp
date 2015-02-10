@@ -12,7 +12,7 @@
     return img;
 }*/
 
-QWidget* makeImage(QString name, int scaledWidth)
+QWidget* makeImage(QString name)
 {
     QImage* img = new QImage(name);
     QWidget* w = new ImageWidget(img);
@@ -50,9 +50,9 @@ void StackImage::push(QLayoutItem *img)
     this->push(img->widget());
 }
 
-void StackImage::push(QString imgName, int scaledHeight)
+void StackImage::push(QString imgName)
 {
-    this->push(makeImage(imgName, scaledHeight));
+    this->push(makeImage(imgName));
 }
 
 void StackImage::removeAll()
@@ -84,7 +84,6 @@ void StackImage::removeMiddle()
 
 void StackImage::resizeEvent(QResizeEvent *event)
 {
-    qDebug() << "resizeEvent";
     QSize newSize(event->size());
     QWidget* back;
     for(int i=0;i<m_stackSize;i++)
