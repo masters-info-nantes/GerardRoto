@@ -16,10 +16,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->thumbnailsList = new QListWidget();
     this->thumbnailsList->setFixedHeight(130);
     this->thumbnailsList->setFlow(QListView::LeftToRight);
-    //this->thumbnailsList->setSpacing(10);
 
     for(int i = 1; i < 22; i++){
-        // Bad way with nice look
         QLabel* thumbLabel = new QLabel();
         thumbLabel->setAlignment(Qt::AlignCenter);
 
@@ -34,7 +32,6 @@ MainWindow::MainWindow(QWidget *parent)
 
         this->thumbnailsList->addItem(listItem);
         this->thumbnailsList->setItemWidget(listItem, thumbLabel);
-
     }
 
     QGridLayout* drawLayout = new QGridLayout();
@@ -121,9 +118,7 @@ MainWindow::MainWindow(QWidget *parent)
     mainLayout->addWidget(this->controlsBar, 1, 0);
     mainLayout->addWidget(this->drawBar, 0, 1, 2, 1);
     mainLayout->addWidget(this->thumbnailsList,2, 0, 1, 2);
-    //mainLayout->setSpacing(0);
-    //mainLayout->setMargin(0);
-    //mainLayout->getContentsMargins(2,2,2,2);
+
     QWidget* mainWidget = new QWidget();
     mainWidget->setLayout(mainLayout);
 
@@ -279,7 +274,11 @@ void MainWindow::createMenus()
 
 /************************** Menu slots ****************************/
 void MainWindow::newProject(){
+    NewProjectDialog* dialog = new NewProjectDialog();
 
+    if(dialog->exec() == QDialog::Accepted){
+       QMessageBox::about(this, "Nouveau projet", "Vidéo: " + dialog->getSelectedFile() + "\nFPS: " + QString::number(dialog->getSelectedFPSCount()));
+    }
 }
 
 void MainWindow::open(){

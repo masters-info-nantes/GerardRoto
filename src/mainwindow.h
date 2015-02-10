@@ -18,8 +18,8 @@
 #include <QButtonGroup>
 #include <QFileDialog>
 #include <colorpicker.h>
-//#include "imagewidget.h"
 #include "stackimage.h"
+#include "newprojectdialog.h"
 
 class MainWindow : public QMainWindow
 {

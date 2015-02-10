@@ -2,6 +2,7 @@
 #include <mainwindow.h>
 #include <stackimage.h>
 #include <drawzone.h>
+#include <newprojectdialog.h>
 
 int main(int argc, char** argv){
 
