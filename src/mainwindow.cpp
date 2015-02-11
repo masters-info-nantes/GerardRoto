@@ -9,7 +9,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Create widgets
     this->imageView = new StackImage();
-    this->imageView->push(new DrawZone(1000,600));
+    DrawZone *dz = new DrawZone(1000,600);
+    this->imageView->push(dz);
     this->imageView->push("../img/fedora2.png");
     this->imageView->push("../img/hd-1.jpeg");
 
