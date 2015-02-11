@@ -5,7 +5,8 @@ HEADERS += \
     colorpicker.h \
     drawzone.h \
     stackimage.h \
-    imagewidget.h
+    imagewidget.h \
+    newprojectdialog.h
 
 SOURCES += \
     mainwindow.cpp \
@@ -13,4 +14,5 @@ SOURCES += \
     colorpicker.cpp \
     drawzone.cpp \
     stackimage.cpp \
-    imagewidget.cpp
+    imagewidget.cpp \
+    newprojectdialog.cpp

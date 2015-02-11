@@ -17,19 +17,36 @@ MainWindow::MainWindow(QWidget *parent)
     this->thumbnailsList = new QListWidget();
     this->thumbnailsList->setFixedHeight(130);
     this->thumbnailsList->setFlow(QListView::LeftToRight);
-    this->thumbnailsList->addItem("Gilbert");
-    this->thumbnailsList->addItem("Maximilien");
-    this->thumbnailsList->addItem("Marcel");
+
+    for(int i = 1; i < 22; i++){
+        QLabel* thumbLabel = new QLabel();
+        thumbLabel->setAlignment(Qt::AlignCenter);
+
+        QPixmap* thumbFull = new QPixmap(QDir::currentPath() + "/../img/thumbs/hd-"+ QString::number(i) +".jpeg");
+        QPixmap thumbScaled(thumbFull->scaledToHeight(100));
+
+        thumbLabel->setPixmap(thumbScaled);
+        thumbLabel->setMinimumSize(QSize(thumbScaled.width(), thumbScaled.height()));
+
+        QListWidgetItem* listItem = new QListWidgetItem(this->thumbnailsList);
+        listItem->setSizeHint(QSize(thumbLabel->minimumWidth()+ 30, thumbLabel->minimumHeight()));
+
+        this->thumbnailsList->addItem(listItem);
+        this->thumbnailsList->setItemWidget(listItem, thumbLabel);
+    }
 
     QGridLayout* drawLayout = new QGridLayout();
-    this->buttonFreeDraw = new QPushButton(".");
+    this->buttonFreeDraw = new QPushButton();
+    this->buttonFreeDraw->setIcon(QIcon(QPixmap("../img/icons/pencil.png")));
     this->buttonFreeDraw->setCheckable(true);
     this->buttonFreeDraw->setChecked(true);
 
-    this->buttonLineDraw = new QPushButton("/");
+    this->buttonLineDraw = new QPushButton();
+    this->buttonLineDraw->setIcon(QIcon(QPixmap("../img/icons/line.png")));
     this->buttonLineDraw->setCheckable(true);
 
-    this->buttonEraser = new QPushButton("U");
+    this->buttonEraser = new QPushButton();
+    this->buttonEraser->setIcon(QIcon(QPixmap("../img/icons/eraser.png")));
     this->buttonEraser->setCheckable(true);
 
     QButtonGroup* drawButtonGroup = new QButtonGroup();
@@ -64,36 +81,50 @@ MainWindow::MainWindow(QWidget *parent)
     this->controlsBar->setMaximumSize(1000, 50);
 
     QHBoxLayout* controlsLayout = new QHBoxLayout();
-    this->buttonBegin = new QPushButton("|<");
-    this->buttonEnd = new QPushButton(">|");
-    this->buttonBack = new QPushButton("<");
-    this->buttonNext = new QPushButton(">");
-    this->frameNumber = new QLineEdit();
+    this->buttonBegin = new QPushButton();
+    this->buttonBegin->setIcon(QIcon(QPixmap("../img/icons/begin.png")));
+
+    this->buttonEnd = new QPushButton();
+    this->buttonEnd->setIcon(QIcon(QPixmap("../img/icons/end.png")));
+
+    this->buttonBack = new QPushButton();
+    this->buttonBack->setIcon(QIcon(QPixmap("../img/icons/backward.png")));
+
+    this->buttonNext = new QPushButton();
+    this->buttonNext->setIcon(QIcon(QPixmap("../img/icons/forward.png")));
+
+    this->frameNumber = new QLineEdit("0");
     this->buttonGoFrame = new QPushButton("Go");
     this->numberPreviousFrames = new QSpinBox();
-    this->buttonPlayDraws = new QPushButton(">");
-    this->labelWithMovie = new QLabel("Mov");
+
+    this->buttonPlayDraws = new QPushButton();
+    this->buttonPlayDraws->setIcon(QIcon(QPixmap("../img/icons/play.png")));
+
+    this->labelWithMovie = new QLabel();
+    this->labelWithMovie->setPixmap(QPixmap("../img/icons/movie.png").scaledToHeight(20));
+
     this->checkPlayWithMovie = new QCheckBox();
-    this->buttonPlayFull = new QPushButton("> Depuis le début");
+    this->buttonPlayFull = new QPushButton("Depuis le début");
+    this->buttonPlayFull->setIcon(QIcon(QPixmap("../img/icons/play.png")));
 
     controlsLayout->addWidget(this->buttonBegin);
     controlsLayout->addWidget(this->buttonBack);
 
-    controlsLayout->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
+    controlsLayout->addSpacerItem(new QSpacerItem(10,10, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
     controlsLayout->addWidget(new QLabel("Image courante: "));
     controlsLayout->addWidget(this->frameNumber);
     controlsLayout->addWidget(this->buttonGoFrame);
 
-    controlsLayout->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Minimum,QSizePolicy::Minimum));
+    controlsLayout->addSpacerItem(new QSpacerItem(10,10, QSizePolicy::Minimum, QSizePolicy::Minimum));
     controlsLayout->addWidget(this->numberPreviousFrames);
     controlsLayout->addWidget(this->buttonPlayDraws);
 
-    controlsLayout->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Minimum,QSizePolicy::Minimum));
+    controlsLayout->addSpacerItem(new QSpacerItem(10,10, QSizePolicy::Minimum, QSizePolicy::Minimum));
     controlsLayout->addWidget(this->labelWithMovie);
     controlsLayout->addWidget(this->checkPlayWithMovie);
     controlsLayout->addWidget(this->buttonPlayFull);
 
-    controlsLayout->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Minimum,QSizePolicy::Minimum));
+    controlsLayout->addSpacerItem(new QSpacerItem(10,10, QSizePolicy::Minimum, QSizePolicy::Minimum));
     controlsLayout->addWidget(this->buttonNext);
     controlsLayout->addWidget(this->buttonEnd);
 
@@ -105,9 +136,7 @@ MainWindow::MainWindow(QWidget *parent)
     mainLayout->addWidget(this->controlsBar, 1, 0);
     mainLayout->addWidget(this->drawBar, 0, 1, 2, 1);
     mainLayout->addWidget(this->thumbnailsList,2, 0, 1, 2);
-    //mainLayout->setSpacing(0);
-    //mainLayout->setMargin(0);
-    //mainLayout->getContentsMargins(2,2,2,2);
+
     QWidget* mainWidget = new QWidget();
     mainWidget->setLayout(mainLayout);
 
@@ -117,7 +146,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->setCentralWidget(mainWidget);
     this->setWindowTitle(tr("GerardRoto"));
-    this->setMinimumSize(1000, 720);
+    this->setMinimumSize(1050, 720);
 }
 
 void MainWindow::createActions()
@@ -263,7 +292,11 @@ void MainWindow::createMenus()
 
 /************************** Menu slots ****************************/
 void MainWindow::newProject(){
+    NewProjectDialog* dialog = new NewProjectDialog();
 
+    if(dialog->exec() == QDialog::Accepted){
+       QMessageBox::about(this, "Nouveau projet", "Vidéo: " + dialog->getSelectedFile() + "\nFPS: " + QString::number(dialog->getSelectedFPSCount()));
+    }
 }
 
 void MainWindow::open(){

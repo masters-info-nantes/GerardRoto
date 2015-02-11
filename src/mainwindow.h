@@ -19,6 +19,7 @@
 #include <QFileDialog>
 #include <colorpicker.h>
 #include "stackimage.h"
+#include "newprojectdialog.h"
 
 class MainWindow : public QMainWindow
 {
