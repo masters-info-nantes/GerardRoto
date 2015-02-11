@@ -7,10 +7,11 @@ DrawZone::DrawZone(int width, int height, int penWidth, QColor penColor, QWidget
       m_tool(0),
       m_back_pos(0,0),
       m_pen(penColor),
-      m_image(new QImage(width,height,QImage::Format_ARGB32_Premultiplied))
+      //m_image(new QImage(width,height,QImage::Format_ARGB32_Premultiplied))
+      m_image(new QImage("../img/test.png"))
 {
     m_pen.setWidth(penWidth);
-    this->setTool(DrawZone::TOOL_LINE);
+    this->setTool(DrawZone::TOOL_RUBBER);
 }
 
 DrawZone::~DrawZone()
@@ -47,13 +48,12 @@ void DrawZone::mousePressEvent(QMouseEvent *event) {
     switch(m_tool)
     {
     case DrawZone::TOOL_PEN:
+    case DrawZone::TOOL_RUBBER:
         m_tracer = true;
         m_back_pos = event->pos();
         break;
     case DrawZone::TOOL_LINE:
         // nothing
-        break;
-    case DrawZone::TOOL_RUBBER:
         break;
     }
 }
@@ -72,9 +72,32 @@ void DrawZone::mouseMoveEvent(QMouseEvent *event) {
         }
         break;
     case DrawZone::TOOL_LINE:
-        // nothing
+        //nothing
         break;
     case DrawZone::TOOL_RUBBER:
+        if(m_tracer)
+        {
+            QImage alpha(m_image->alphaChannel());
+            int penHalfWidth = m_pen.width()/2;
+            int posX = event->pos().rx();
+            int posY = event->pos().ry();
+            int minX = posX-penHalfWidth;
+            int minY = posY-penHalfWidth;
+            int maxX = posX+penHalfWidth;
+            int maxY = posY+penHalfWidth;
+
+            for(int i=minX;i<maxX;i++)
+            {
+                for(int j=minY;j<maxY;j++)
+                {
+                    alpha.setPixel(i,j,0);
+                }
+            }
+
+            m_back_pos = event->pos();
+            m_image->setAlphaChannel(alpha);
+            update();
+        }
         break;
     }
 }
@@ -83,20 +106,26 @@ void DrawZone::mouseReleaseEvent(QMouseEvent *event) {
     switch(m_tool)
     {
     case DrawZone::TOOL_PEN:
+    case DrawZone::TOOL_RUBBER:
         m_tracer = false;
         m_back_pos = QPoint(0,0);
         break;
     case DrawZone::TOOL_LINE:
-        if(m_back_pos != (QPoint(0,0)))
+        if(event->button() == Qt::RightButton)
         {
-            QPainter painter(m_image);
-            painter.setPen(m_pen);
-            painter.drawLine(m_back_pos,event->pos());
+            m_back_pos = QPoint(0,0);
         }
-        m_back_pos = event->pos();
-        update();
-        break;
-    case DrawZone::TOOL_RUBBER:
+        else
+        {
+            if(m_back_pos != (QPoint(0,0)))
+            {
+                QPainter painter(m_image);
+                painter.setPen(m_pen);
+                painter.drawLine(m_back_pos,event->pos());
+            }
+            m_back_pos = event->pos();
+            update();
+        }
         break;
     }
 }
