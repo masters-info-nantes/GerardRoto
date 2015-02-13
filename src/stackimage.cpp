@@ -82,6 +82,16 @@ void StackImage::removeMiddle()
     }
 }
 
+void StackImage::enterEvent(QEvent*)
+{
+    emit mouseOver();
+}
+
+void StackImage::leaveEvent(QEvent*)
+{
+    emit mouseOut();
+}
+
 void StackImage::resizeEvent(QResizeEvent *event)
 {
     QSize newSize(event->size());

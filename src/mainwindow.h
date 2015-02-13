@@ -91,6 +91,13 @@ private:
 
     DrawZone *drawzone;
 
+    QCursor *cursors[4];
+    const static int CURSOR_BASE = 0;
+    const static int CURSOR_FREE = 1;
+    const static int CURSOR_LINE = 2;
+    const static int CURSOR_ERASER= 3;
+    QCursor * toolCursor;
+
 public:
     explicit MainWindow(QWidget *parent = 0);
 
@@ -131,6 +138,10 @@ private slots:
     void playWithMovie();
 
     void about();
+
+
+    void mouseEnterDrawZone();
+    void mouseLeaveDrawZone();
 };
 
 #endif // MAINWINDOW_H

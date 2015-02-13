@@ -20,9 +20,13 @@ public:
     void removeAll();
     void removeBottom();
     void removeMiddle();
+
+    void enterEvent(QEvent*);
+    void leaveEvent(QEvent*);
     void resizeEvent(QResizeEvent *event);
 signals:
-
+    void mouseOver();
+    void mouseOut();
 public slots:
 };
 

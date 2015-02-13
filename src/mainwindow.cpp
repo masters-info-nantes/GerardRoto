@@ -146,10 +146,19 @@ MainWindow::MainWindow(QWidget *parent)
     mainWidget->setLayout(mainLayout);
 
     // Final stuff
-    this->setCursor(QCursor(QPixmap("../img/cursors/base.png")));
-
     this->createActions();
     this->createMenus();
+
+    cursors[CURSOR_BASE] = new QCursor(QPixmap("../img/cursors/base.png"));
+    cursors[CURSOR_FREE] = new QCursor(QPixmap("../img/cursors/pencil.png"));
+    cursors[CURSOR_LINE] = new QCursor(QPixmap("../img/cursors/line.png"));
+    cursors[CURSOR_ERASER] = new QCursor(QPixmap("../img/cursors/eraser.png"));
+    toolCursor = cursors[CURSOR_FREE];
+    this->setCursor(*cursors[CURSOR_BASE]);
+
+    connect(imageView, SIGNAL(mouseOver()), this, SLOT(mouseEnterDrawZone()));
+    connect(imageView, SIGNAL(mouseOut()), this, SLOT(mouseLeaveDrawZone()));
+
 
     this->setCentralWidget(mainWidget);
     this->setWindowTitle(tr("GerardRoto"));
@@ -361,17 +370,17 @@ void MainWindow::redo(){
 
 void MainWindow::freeDraw(){
     this->drawzone->setTool(DrawZone::TOOL_PEN);
-    this->setCursor(QCursor(QPixmap("../img/cursors/pencil.png")));
+    toolCursor = cursors[CURSOR_FREE];
 }
 
 void MainWindow::lineDraw(){
     this->drawzone->setTool(DrawZone::TOOL_LINE);
-    this->setCursor(QCursor(QPixmap("../img/cursors/line.png")));
+    toolCursor = cursors[CURSOR_LINE];
 }
 
 void MainWindow::eraser(){
     this->drawzone->setTool(DrawZone::TOOL_RUBBER);
-    this->setCursor(QCursor(QPixmap("../img/cursors/eraser.png")));
+    toolCursor = cursors[CURSOR_ERASER];
 }
 
 void MainWindow::changePenWidth(int width){
@@ -420,4 +429,14 @@ void MainWindow::playWithMovie(){
 
 void MainWindow::about(){
     QMessageBox::about(this, "À Propos de Gérard", "Developpeurs: Anthony Pena et Jérémy Bardon");
+}
+
+void MainWindow::mouseEnterDrawZone()
+{
+    this->setCursor(*toolCursor);
+}
+
+void MainWindow::mouseLeaveDrawZone()
+{
+    this->setCursor(*cursors[CURSOR_BASE]);
 }
