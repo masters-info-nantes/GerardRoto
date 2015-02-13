@@ -5,7 +5,8 @@
 #include <QPushButton>
 #include <QButtonGroup>
 #include <QGridLayout>
-#include <QDebug>
+#include <QColor>
+#include <qdebug.h>
 
 class ColorPicker : public QWidget
 {
@@ -13,14 +14,16 @@ class ColorPicker : public QWidget
 
 private:
     QVector<QPushButton*>* colorsLabels;
+    QColor* currentColor;
 
 public:
     explicit ColorPicker(QWidget *parent = 0);
 
 signals:
+    void colorChanged(QColor);
 
-public slots:
-
+private slots:
+    void buttonColorClicked();
 };
 
 #endif // COLORPICKER_H

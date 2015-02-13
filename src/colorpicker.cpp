@@ -23,12 +23,22 @@ ColorPicker::ColorPicker(QWidget *parent) :
             "QPushButton:checked {background-color: " + colorList.at(i) + "; border: 3px double #444444}"
         );
 
+        currentButton->setToolTip(colorList.at(i));
+        connect(currentButton, SIGNAL(clicked()), this, SLOT(buttonColorClicked()));
+
         colorGroup->addButton(currentButton);
 
         layout->addWidget(currentButton, i/2, i%2);
         this->colorsLabels->push_back(currentButton);
     }
 
+    this->currentColor = new QColor("black");
     colorGroup->setExclusive(true);
     this->setLayout(layout);
+}
+
+void ColorPicker::buttonColorClicked(){
+    QPushButton* emitter = (QPushButton*) QObject::sender();
+    this->currentColor = new QColor(emitter->toolTip());
+    emit colorChanged(*this->currentColor);
 }

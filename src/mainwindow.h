@@ -20,6 +20,8 @@
 #include <colorpicker.h>
 #include "stackimage.h"
 #include "newprojectdialog.h"
+#include "drawzone.h"
+#include <QColor>
 
 class MainWindow : public QMainWindow
 {
@@ -80,6 +82,8 @@ private:
 
     QListWidget* thumbnailsList;
 
+    DrawZone *dz;
+
 public:
     explicit MainWindow(QWidget *parent = 0);
 
@@ -102,6 +106,8 @@ private slots:
     void freeDraw();
     void lineDraw();
     void eraser();
+    void changePenColor(QColor color);
+    void changePenWidth(int width);
 
     void displayBackgroundMovie();
     void onionPeelings();
