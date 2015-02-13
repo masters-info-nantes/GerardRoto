@@ -4,14 +4,15 @@
 DrawZone::DrawZone(int width, int height, int penWidth, QColor penColor, QWidget *parent)
     : QWidget(parent),
       m_tracer(false),
-      m_tool(0),
+      m_tool(DrawZone::TOOL_PEN),
       m_back_pos(0,0),
       m_pen(penColor),
-      //m_image(new QImage(width,height,QImage::Format_ARGB32_Premultiplied))
-      m_image(new QImage("../img/test.png"))
+      m_image(new QImage(width,height,QImage::Format_ARGB32))
+      //m_image(new QImage("../img/test.png"))
 {
     m_pen.setWidth(penWidth);
-    this->setTool(DrawZone::TOOL_RUBBER);
+    //m_pen.setWidth(10);
+    //this->setTool(DrawZone::TOOL_RUBBER);
 }
 
 DrawZone::~DrawZone()
