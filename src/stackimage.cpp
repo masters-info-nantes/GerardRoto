@@ -85,7 +85,6 @@ void StackImage::removeMiddle()
 void StackImage::resizeEvent(QResizeEvent *event)
 {
     QSize newSize(event->size());
-    QWidget* back;
     for(int i=0;i<m_stackSize;i++)
     {
         this->layout()->itemAt(i)->widget()->resize(newSize);

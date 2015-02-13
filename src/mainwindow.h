@@ -35,6 +35,7 @@ private:
     QMenu* viewingMenu;
     QMenu* aboutMenu;
 
+    // File
     QAction* newProjectAction;
     QAction* openAction;
     QAction* saveAction;
@@ -43,16 +44,22 @@ private:
     QAction* exportDrawWithMovieAction;
     QAction* closeAction;
     QAction* quitAction;
+    // Draw
+    QAction* undoAction;
+    QAction* redoAction;
     QAction* freeDrawAction;
     QAction* lineDrawAction;
     QAction* eraserAction;
+    // Layers
     QAction* displayBackgroundMovieAction;
     QAction* onionPeelingsAction;
     QAction* peelingsNumberAction;
-    QAction* beginAction;
-    QAction* endAction;
+    // Goto
     QAction* backAction;
     QAction* nextAction;
+    QAction* beginAction;
+    QAction* endAction;
+    // Viewing
     QAction* playFromBeginningAction;
     QAction* playWithMovieAction;
     QAction* aboutAction;
@@ -82,7 +89,7 @@ private:
 
     QListWidget* thumbnailsList;
 
-    DrawZone *dz;
+    DrawZone *drawzone;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -103,6 +110,8 @@ private slots:
     void close();
     void quit();
 
+    void undo();
+    void redo();
     void freeDraw();
     void lineDraw();
     void eraser();
@@ -113,10 +122,10 @@ private slots:
     void onionPeelings();
     void peelingsNumber();
 
-    void begin();
-    void end();
     void back();
     void next();
+    void begin();
+    void end();
 
     void playFromBeginning();
     void playWithMovie();

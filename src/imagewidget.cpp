@@ -1,9 +1,9 @@
 #include "imagewidget.h"
 
 ImageWidget::ImageWidget(QImage *img, QWidget *parent) :
+    QWidget(parent),
     m_origin(new QImage(*img)),
-    m_image(new QImage(*img)),
-    QWidget(parent)
+    m_image(new QImage(*img))
 {
 }
 
@@ -12,7 +12,7 @@ ImageWidget::~ImageWidget()
 
 }
 
-void ImageWidget::paintEvent(QPaintEvent *event)
+void ImageWidget::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
     QPen pen(Qt::black);

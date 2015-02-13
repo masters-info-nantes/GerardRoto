@@ -7,12 +7,11 @@ DrawZone::DrawZone(int width, int height, int penWidth, QColor penColor, QWidget
       m_tool(DrawZone::TOOL_PEN),
       m_back_pos(0,0),
       m_pen(penColor),
-      m_image(new QImage(width,height,QImage::Format_ARGB32))
-      //m_image(new QImage("../img/test.png"))
+      m_image(new QImage(width,height,QImage::Format_ARGB32)),
+      m_undo(0),
+      m_redo(0)
 {
     m_pen.setWidth(penWidth);
-    //m_pen.setWidth(10);
-    //this->setTool(DrawZone::TOOL_RUBBER);
 }
 
 DrawZone::~DrawZone()
@@ -52,6 +51,9 @@ void DrawZone::mousePressEvent(QMouseEvent *event) {
     case DrawZone::TOOL_RUBBER:
         m_tracer = true;
         m_back_pos = event->pos();
+        if(m_undo != 0)
+            delete m_undo;
+        m_undo = new QImage(*m_image);
         break;
     case DrawZone::TOOL_LINE:
         // nothing
@@ -120,6 +122,9 @@ void DrawZone::mouseReleaseEvent(QMouseEvent *event) {
         {
             if(m_back_pos != (QPoint(0,0)))
             {
+                if(m_undo != 0)
+                    delete m_undo;
+                m_undo = new QImage(*m_image);
                 QPainter painter(m_image);
                 painter.setPen(m_pen);
                 painter.drawLine(m_back_pos,event->pos());
@@ -131,7 +136,7 @@ void DrawZone::mouseReleaseEvent(QMouseEvent *event) {
     }
 }
 
-void DrawZone::paintEvent(QPaintEvent *event) {
+void DrawZone::paintEvent(QPaintEvent*) {
     QPainter painter(this);
     painter.setPen(m_pen);
     painter.drawImage(0,0,*m_image);
@@ -142,6 +147,32 @@ void DrawZone::resizeEvent(QResizeEvent *event) {
     m_image = new QImage(m_image->scaled(event->size()));
     delete tmp;
     update();
+}
+
+bool DrawZone::undo()
+{
+    if(m_undo != 0)
+    {
+        m_redo = m_image;
+        m_image = m_undo;
+        m_undo = 0;
+        update();
+        return true;
+    }
+    return false;
+}
+
+bool DrawZone::redo()
+{
+    if(m_redo != 0)
+    {
+        m_undo = m_image;
+        m_image = m_redo;
+        m_redo = 0;
+        update();
+        return true;
+    }
+    return false;
 }
 
 void DrawZone::save(QString filename)

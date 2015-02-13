@@ -9,8 +9,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Create widgets
     this->imageView = new StackImage();
-    dz = new DrawZone(1000,600);
-    this->imageView->push(dz);
+    drawzone = new DrawZone(1000,600);
+    this->imageView->push(drawzone);
     this->imageView->push("../img/fedora2.png");
     this->imageView->push("../img/hd-1.jpeg");
 
@@ -192,6 +192,15 @@ void MainWindow::createActions()
      connect(quitAction, SIGNAL(triggered()), this, SLOT(quit()));
 
      // Draw menu
+     this->undoAction = new QAction(tr("&Annuler"), this);
+     this->undoAction->setShortcut(Qt::CTRL + Qt::Key_Z);
+     connect(undoAction, SIGNAL(triggered()), this, SLOT(undo()));
+
+     this->redoAction = new QAction(tr("&Refaire"), this);
+     this->redoAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Z);
+     connect(redoAction, SIGNAL(triggered()), this, SLOT(redo()));
+
+
      this->freeDrawAction = new QAction(tr("&Tracé libre"), this);
      connect(freeDrawAction, SIGNAL(triggered()), this, SLOT(freeDraw()));
 
@@ -266,6 +275,10 @@ void MainWindow::createMenus()
 
      // Draw menu
      this->drawMenu = menuBar()->addMenu(tr("&Dessin"));
+     this->drawMenu->addAction(undoAction);
+     this->drawMenu->addAction(redoAction);
+
+     this->drawMenu->addSeparator();
      this->drawMenu->addAction(freeDrawAction);
      this->drawMenu->addAction(lineDrawAction);
      this->drawMenu->addAction(eraserAction);
@@ -338,27 +351,35 @@ void MainWindow::quit(){
     QApplication::quit();
 }
 
+void MainWindow::undo(){
+    this->drawzone->undo();
+}
+
+void MainWindow::redo(){
+    this->drawzone->redo();
+}
+
 void MainWindow::freeDraw(){
-    this->dz->setTool(DrawZone::TOOL_PEN);
+    this->drawzone->setTool(DrawZone::TOOL_PEN);
     this->setCursor(QCursor(QPixmap("../img/cursors/pencil.png")));
 }
 
 void MainWindow::lineDraw(){
-    this->dz->setTool(DrawZone::TOOL_LINE);
+    this->drawzone->setTool(DrawZone::TOOL_LINE);
     this->setCursor(QCursor(QPixmap("../img/cursors/line.png")));
 }
 
 void MainWindow::eraser(){
-    this->dz->setTool(DrawZone::TOOL_RUBBER);
+    this->drawzone->setTool(DrawZone::TOOL_RUBBER);
     this->setCursor(QCursor(QPixmap("../img/cursors/eraser.png")));
 }
 
 void MainWindow::changePenWidth(int width){
-    this->dz->setPenWidth(width);
+    this->drawzone->setPenWidth(width);
 }
 
 void MainWindow::changePenColor(QColor color){
-    this->dz->setPenColor(color);
+    this->drawzone->setPenColor(color);
 }
 
 void MainWindow::displayBackgroundMovie(){
@@ -373,19 +394,19 @@ void MainWindow::peelingsNumber(){
 
 }
 
-void MainWindow::begin(){
-
-}
-
-void MainWindow::end(){
-
-}
-
 void MainWindow::back(){
 
 }
 
 void MainWindow::next(){
+
+}
+
+void MainWindow::begin(){
+
+}
+
+void MainWindow::end(){
 
 }
 

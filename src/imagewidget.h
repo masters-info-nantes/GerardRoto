@@ -13,7 +13,7 @@ private:
 public:
     explicit ImageWidget(QImage* img, QWidget *parent = 0);
     ~ImageWidget();
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent*);
     void resizeEvent(QResizeEvent *event);
 
 signals:

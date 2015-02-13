@@ -13,6 +13,8 @@ private:
     QPoint m_back_pos;
     QPen m_pen;
     QImage * m_image;
+    QImage * m_undo;
+    QImage * m_redo;
 public:
     explicit DrawZone(int width, int height, int penWidth = 3, QColor penColor = QColor(0,0,0),QWidget *parent = 0);
     ~DrawZone();
@@ -28,8 +30,11 @@ public:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent*);
     void resizeEvent(QResizeEvent *event);
+
+    bool undo();
+    bool redo();
 
     void save(QString filename);
 signals:
