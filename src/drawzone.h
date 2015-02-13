@@ -37,6 +37,8 @@ public:
     bool redo();
 
     void save(QString filename);
+private:
+    void newdo();
 signals:
 
 public slots:

@@ -51,9 +51,7 @@ void DrawZone::mousePressEvent(QMouseEvent *event) {
     case DrawZone::TOOL_RUBBER:
         m_tracer = true;
         m_back_pos = event->pos();
-        if(m_undo != 0)
-            delete m_undo;
-        m_undo = new QImage(*m_image);
+        newdo();
         break;
     case DrawZone::TOOL_LINE:
         // nothing
@@ -122,9 +120,7 @@ void DrawZone::mouseReleaseEvent(QMouseEvent *event) {
         {
             if(m_back_pos != (QPoint(0,0)))
             {
-                if(m_undo != 0)
-                    delete m_undo;
-                m_undo = new QImage(*m_image);
+                newdo();
                 QPainter painter(m_image);
                 painter.setPen(m_pen);
                 painter.drawLine(m_back_pos,event->pos());
@@ -146,7 +142,28 @@ void DrawZone::resizeEvent(QResizeEvent *event) {
     QImage* tmp = m_image;
     m_image = new QImage(m_image->scaled(event->size()));
     delete tmp;
+    if(m_undo != 0)
+    {
+        QImage* tmp = m_undo;
+        m_undo = new QImage(m_undo->scaled(event->size()));
+        delete tmp;
+    }
+    if(m_redo != 0)
+    {
+        QImage* tmp = m_redo;
+        m_redo = new QImage(m_redo->scaled(event->size()));
+        delete tmp;
+    }
     update();
+}
+
+void DrawZone::newdo()
+{
+    if(m_undo != 0)
+        delete m_undo;
+    m_undo = new QImage(*m_image);
+    if(m_redo != 0)
+        delete m_redo;
 }
 
 bool DrawZone::undo()
