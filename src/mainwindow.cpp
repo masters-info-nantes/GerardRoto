@@ -77,7 +77,7 @@ MainWindow::MainWindow(QWidget *parent)
     drawLayout->setRowStretch(3, 1);
     drawLayout->setRowStretch(5, 1);
     drawLayout->setRowStretch(6, 5);
-// this->setCursor(QCursor(QPixmap("../img/icons/rubberpointer.png")));
+
     this->drawBar = new QWidget();
     this->drawBar->setFixedWidth(150);
     this->drawBar->setLayout(drawLayout);
@@ -146,6 +146,8 @@ MainWindow::MainWindow(QWidget *parent)
     mainWidget->setLayout(mainLayout);
 
     // Final stuff
+    this->setCursor(QCursor(QPixmap("../img/cursors/base.png")));
+
     this->createActions();
     this->createMenus();
 
@@ -338,14 +340,17 @@ void MainWindow::quit(){
 
 void MainWindow::freeDraw(){
     this->dz->setTool(DrawZone::TOOL_PEN);
+    this->setCursor(QCursor(QPixmap("../img/cursors/pencil.png")));
 }
 
 void MainWindow::lineDraw(){
     this->dz->setTool(DrawZone::TOOL_LINE);
+    this->setCursor(QCursor(QPixmap("../img/cursors/line.png")));
 }
 
 void MainWindow::eraser(){
     this->dz->setTool(DrawZone::TOOL_RUBBER);
+    this->setCursor(QCursor(QPixmap("../img/cursors/eraser.png")));
 }
 
 void MainWindow::changePenWidth(int width){
