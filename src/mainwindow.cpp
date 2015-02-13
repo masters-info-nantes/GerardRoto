@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Create widgets
     this->imageView = new StackImage();
-    DrawZone *dz = new DrawZone(1000,600);
+    dz = new DrawZone(1000,600);
     this->imageView->push(dz);
     this->imageView->push("../img/fedora2.png");
     this->imageView->push("../img/hd-1.jpeg");
@@ -37,15 +37,18 @@ MainWindow::MainWindow(QWidget *parent)
 
     QGridLayout* drawLayout = new QGridLayout();
     this->buttonFreeDraw = new QPushButton();
+    connect(this->buttonFreeDraw, SIGNAL(clicked()), this, SLOT(freeDraw()));
     this->buttonFreeDraw->setIcon(QIcon(QPixmap("../img/icons/pencil.png")));
     this->buttonFreeDraw->setCheckable(true);
     this->buttonFreeDraw->setChecked(true);
 
     this->buttonLineDraw = new QPushButton();
+    connect(this->buttonLineDraw, SIGNAL(clicked()), this, SLOT(lineDraw()));
     this->buttonLineDraw->setIcon(QIcon(QPixmap("../img/icons/line.png")));
     this->buttonLineDraw->setCheckable(true);
 
     this->buttonEraser = new QPushButton();
+    connect(this->buttonEraser, SIGNAL(clicked()), this, SLOT(eraser()));
     this->buttonEraser->setIcon(QIcon(QPixmap("../img/icons/eraser.png")));
     this->buttonEraser->setCheckable(true);
 
@@ -56,7 +59,9 @@ MainWindow::MainWindow(QWidget *parent)
     drawButtonGroup->setExclusive(true);
 
     this->numberBrushSize = new QSpinBox();
+    connect(this->numberBrushSize, SIGNAL(valueChanged(int)), this, SLOT(changePenWidth(int)));
     this->pickerBrushColor = new ColorPicker();
+    connect(this->pickerBrushColor, SIGNAL(colorChanged(QColor)), this, SLOT(changePenColor(QColor)));
 
     drawLayout->addWidget(this->buttonFreeDraw, 0, 0);
     drawLayout->addWidget(this->buttonLineDraw, 0, 1);
@@ -141,6 +146,8 @@ MainWindow::MainWindow(QWidget *parent)
     mainWidget->setLayout(mainLayout);
 
     // Final stuff
+    this->setCursor(QCursor(QPixmap("../img/cursors/base.png")));
+
     this->createActions();
     this->createMenus();
 
@@ -332,15 +339,26 @@ void MainWindow::quit(){
 }
 
 void MainWindow::freeDraw(){
-
+    this->dz->setTool(DrawZone::TOOL_PEN);
+    this->setCursor(QCursor(QPixmap("../img/cursors/pencil.png")));
 }
 
 void MainWindow::lineDraw(){
-
+    this->dz->setTool(DrawZone::TOOL_LINE);
+    this->setCursor(QCursor(QPixmap("../img/cursors/line.png")));
 }
 
 void MainWindow::eraser(){
+    this->dz->setTool(DrawZone::TOOL_RUBBER);
+    this->setCursor(QCursor(QPixmap("../img/cursors/eraser.png")));
+}
 
+void MainWindow::changePenWidth(int width){
+    this->dz->setPenWidth(width);
+}
+
+void MainWindow::changePenColor(QColor color){
+    this->dz->setPenColor(color);
 }
 
 void MainWindow::displayBackgroundMovie(){
