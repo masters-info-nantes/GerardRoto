@@ -8,7 +8,8 @@ class DrawZone : public QWidget
 {
     Q_OBJECT
 private:
-    bool m_tracer;
+    bool m_drawingWhenLeave;
+    bool m_draw;
     int m_tool;
     QPoint m_back_pos;
     QPen m_pen;
@@ -27,6 +28,8 @@ public:
     void setPenWidth(int width);
     void setPenColor(QColor color);
 
+    void enterEvent(QEvent*);
+    void leaveEvent(QEvent*);
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
