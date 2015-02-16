@@ -415,6 +415,7 @@ void MainWindow::close(){
 }
 
 void MainWindow::quit(){
+    this->close();
     QApplication::quit();
 }
 
