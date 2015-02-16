@@ -324,7 +324,28 @@ void MainWindow::newProject(){
     NewProjectDialog* dialog = new NewProjectDialog();
 
     if(dialog->exec() == QDialog::Accepted){
-       QMessageBox::about(this, "Nouveau projet", "Vidéo: " + dialog->getSelectedFile() + "\nFPS: " + QString::number(dialog->getSelectedFPSCount()));
+
+       QFileInfo selectedFile = QFileInfo(dialog->getSelectedFile());
+       this->projectName = selectedFile.baseName();
+       this->workingDir = QDir::currentPath() + "/" + this->projectName + "Working";
+
+       QDir().mkdir(this->workingDir);
+
+       QStringList args;
+       args << "-i" << dialog->getSelectedFile();
+       args << "-r" << QString::number(dialog->getSelectedFPSCount());
+       args << selectedFile.baseName() + "-%3d.jpeg";
+
+       //QProcess::execute("ffmpeg", args);
+       QProcess command;
+       command.setWorkingDirectory(this->workingDir);
+       command.start("ffmpeg", args);
+       command.waitForFinished();
+
+       QDir dir(this->workingDir);
+       int imagesCount = dir.entryList().length() - 2; // minus . and ..
+
+       this->setWindowTitle("GerardRoto - " + this->projectName);
     }
 }
 
@@ -332,6 +353,23 @@ void MainWindow::open(){
     QString fileName = QFileDialog::getOpenFileName(this, tr("Ouvrir un projet"),
                                                      "",
                                                      tr("Files (*.gerard)"));
+
+    QFileInfo selectedFile = QFileInfo(fileName);
+    this->projectName = selectedFile.baseName();
+    this->workingDir = QDir::currentPath() + "/" + this->projectName + "Working";
+
+    QDir().mkdir(this->workingDir);
+
+    QStringList args;
+    args << "-xvf" << fileName;
+    args << "-C" << this->workingDir;
+
+    QProcess command;
+    command.setWorkingDirectory(this->workingDir);
+    command.start("tar", args);
+    command.waitForFinished();
+
+    this->setWindowTitle("GerardRoto - " + this->projectName);
 }
 
 void MainWindow::save(){
@@ -340,8 +378,25 @@ void MainWindow::save(){
 
 void MainWindow::saveAs(){
     QString fileName = QFileDialog::getSaveFileName(this, tr("Enregistrer le projet"),
-                                                    "",
+                                                    this->projectName,
                                                     tr("Files (*.gerard)"));
+
+    QStringList args;
+    args << "-cvf" << fileName;
+
+    QDir dir(this->workingDir);
+    QStringList files = dir.entryList();
+
+    for(QString file: files){
+        if(file != "." && file != ".."){
+            args << file;
+        }
+    }
+
+    QProcess command;
+    command.setWorkingDirectory(this->workingDir);
+    command.start("tar", args);
+    command.waitForFinished();
 }
 
 void MainWindow::exportDraw(){
@@ -353,7 +408,8 @@ void MainWindow::exportDrawWithMovie(){
 }
 
 void MainWindow::close(){
-
+    QDir(this->workingDir).removeRecursively();
+    this->setWindowTitle("GerardRoto");
 }
 
 void MainWindow::quit(){

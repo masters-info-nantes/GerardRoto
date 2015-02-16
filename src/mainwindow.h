@@ -98,6 +98,9 @@ private:
     const static int CURSOR_ERASER= 3;
     QCursor * toolCursor;
 
+    QString projectName;
+    QString workingDir;
+
 public:
     explicit MainWindow(QWidget *parent = 0);
 
