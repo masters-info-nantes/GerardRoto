@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->thumbnailsList = new QListWidget();
     this->thumbnailsList->setFixedHeight(130);
     this->thumbnailsList->setFlow(QListView::LeftToRight);
+    //this->thumbnailsList->setSpacing(6);
 
     for(int i = 1; i < 22; i++){
         QLabel* thumbLabel = new QLabel();
@@ -376,6 +377,10 @@ void MainWindow::saveAs(){
     QString fileName = QFileDialog::getSaveFileName(this, tr("Enregistrer le projet"),
                                                     this->projectName,
                                                     tr("Files (*.gerard)"));
+
+    if(!fileName.endsWith(".gerard")){
+        fileName += ".gerard";
+    }
 
     QStringList args;
     args << "-cvf" << fileName;
