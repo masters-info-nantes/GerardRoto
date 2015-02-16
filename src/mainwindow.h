@@ -99,7 +99,7 @@ private:
     QCursor * toolCursor;
 
     QString projectName;
-    QString workingDir;
+    QTemporaryDir* workingDir;
 
 public:
     explicit MainWindow(QWidget *parent = 0);

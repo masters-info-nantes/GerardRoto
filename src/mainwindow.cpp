@@ -327,10 +327,8 @@ void MainWindow::newProject(){
 
        QFileInfo selectedFile = QFileInfo(dialog->getSelectedFile());
        this->projectName = selectedFile.baseName();
-       this->workingDir = QDir::currentPath() + "/" + this->projectName + "Working";
-
-       QDir().mkdir(this->workingDir);
-
+       this->workingDir = new QTemporaryDir();
+qDebug() << this->workingDir->path();
        QStringList args;
        args << "-i" << dialog->getSelectedFile();
        args << "-r" << QString::number(dialog->getSelectedFPSCount());
@@ -338,11 +336,11 @@ void MainWindow::newProject(){
 
        //QProcess::execute("ffmpeg", args);
        QProcess command;
-       command.setWorkingDirectory(this->workingDir);
+       command.setWorkingDirectory(this->workingDir->path());
        command.start("ffmpeg", args);
        command.waitForFinished();
 
-       QDir dir(this->workingDir);
+       QDir dir(this->workingDir->path());
        int imagesCount = dir.entryList().length() - 2; // minus . and ..
 
        this->setWindowTitle("GerardRoto - " + this->projectName);
@@ -356,16 +354,14 @@ void MainWindow::open(){
 
     QFileInfo selectedFile = QFileInfo(fileName);
     this->projectName = selectedFile.baseName();
-    this->workingDir = QDir::currentPath() + "/" + this->projectName + "Working";
-
-    QDir().mkdir(this->workingDir);
+    this->workingDir = new QTemporaryDir();
 
     QStringList args;
     args << "-xvf" << fileName;
-    args << "-C" << this->workingDir;
+    args << "-C" << this->workingDir->path();
 
     QProcess command;
-    command.setWorkingDirectory(this->workingDir);
+    command.setWorkingDirectory(this->workingDir->path());
     command.start("tar", args);
     command.waitForFinished();
 
@@ -384,7 +380,7 @@ void MainWindow::saveAs(){
     QStringList args;
     args << "-cvf" << fileName;
 
-    QDir dir(this->workingDir);
+    QDir dir(this->workingDir->path());
     QStringList files = dir.entryList();
 
     for(int i = 0; i < files.length(); i++){
@@ -395,7 +391,7 @@ void MainWindow::saveAs(){
     }
 
     QProcess command;
-    command.setWorkingDirectory(this->workingDir);
+    command.setWorkingDirectory(this->workingDir->path());
     command.start("tar", args);
     command.waitForFinished();
 }
@@ -409,7 +405,7 @@ void MainWindow::exportDrawWithMovie(){
 }
 
 void MainWindow::close(){
-    QDir(this->workingDir).removeRecursively();
+    delete this->workingDir;
     this->setWindowTitle("GerardRoto");
 }
 
