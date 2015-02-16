@@ -387,7 +387,8 @@ void MainWindow::saveAs(){
     QDir dir(this->workingDir);
     QStringList files = dir.entryList();
 
-    for(QString file: files){
+    for(int i = 0; i < files.length(); i++){
+        QString file = files.at(i);
         if(file != "." && file != ".."){
             args << file;
         }
