@@ -311,6 +311,8 @@ void MainWindow::createMenus()
      this->aboutMenu->addAction(aboutAction);
 }
 
+// Loads thumbnails with images in working directory
+// Not use draw images that ends with ".draw.png"
 void MainWindow::updateThumbnails(){
 
     QDir dir(this->workingDir->path());
@@ -318,7 +320,7 @@ void MainWindow::updateThumbnails(){
 
     for(int i = 0; i < files.length(); i++){
         QString file = files.at(i);
-        if(file == "." || file == ".."){
+        if(file == "." || file == ".." || file.endsWith(".draw.png")){
             continue;
         }
 
@@ -340,29 +342,52 @@ void MainWindow::updateThumbnails(){
     }
 }
 
+// Change the current image
+// - saves draw layer
+// - loads next image and draw layer
 void MainWindow::changeCurrentImage(int index){
 
     int maxIndex = this->thumbnailsList->count() - 1;
     if(index < 0) index = 0;
     else if(index > maxIndex) index = maxIndex;
 
+    // Save current draw layer
+    this->saveCurrentDraw();
+
+    // Load next draw layer
     this->thumbnailsList->setCurrentRow(index);
     this->frameNumber->setText(QString::number(index + 1));
 
-    QLabel* label = (QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->currentItem());
+    QLabel* label = (QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->item(index));
     QFileInfo pictName = QFileInfo(label->toolTip());
-    QString drawName = pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + "." + pictName.suffix();
+    QString drawName = pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png";
 
-    /*
-    QPixmap draw = this->drawzone->getImage();
-    draw.save(drawName);
-    */
+    // Replace draw zone layer (empty if not exists)
+    QFile nextDrawFile(drawName);
+    if(nextDrawFile.exists()){
+        this->drawzone->replaceLayer(new QImage(drawName));
+    }
+    else {
+        this->drawzone->replaceLayer(new QImage());
+    }
 
     this->imageView->removeAll();
     this->imageView->push(this->drawzone);
     this->imageView->push(label->toolTip());
+    this->currentIndex = index;
 }
 
+// Save current draw layer
+void MainWindow::saveCurrentDraw(){
+    QLabel* label = (QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->item(this->currentIndex));
+    if(label == NULL) return;
+    QFileInfo pictName = QFileInfo(label->toolTip());
+    QString drawName = pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png";
+    this->drawzone->save(drawName);
+}
+
+// Change perpective between no project opened and
+// project openend
 void MainWindow::setPerspective(bool noProject){
     this->controlsBar->setDisabled(noProject);
     this->drawBar->setDisabled(noProject);
@@ -409,16 +434,16 @@ qDebug() << this->workingDir->path();
 }
 
 void MainWindow::open(){
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Ouvrir un projet"),
+    this->projectFullPath = QFileDialog::getOpenFileName(this, tr("Ouvrir un projet"),
                                                      "",
                                                      tr("Files (*.gerard)"));
 
-    QFileInfo selectedFile = QFileInfo(fileName);
+    QFileInfo selectedFile = QFileInfo(this->projectFullPath);
     this->projectName = selectedFile.baseName();
     this->workingDir = new QTemporaryDir();
 qDebug() << this->workingDir->path();
     QStringList args;
-    args << "-xvf" << fileName;
+    args << "-xvf" << this->projectFullPath;
     args << "-C" << this->workingDir->path();
 
     QProcess command;
@@ -434,19 +459,19 @@ qDebug() << this->workingDir->path();
 
 void MainWindow::save(){
 
-}
+    this->saveCurrentDraw();
 
-void MainWindow::saveAs(){
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Enregistrer le projet"),
-                                                    this->projectName,
-                                                    tr("Files (*.gerard)"));
+    if(!this->projectFullPath.endsWith(".gerard")){
+        this->projectFullPath += ".gerard";
+    }
 
-    if(!fileName.endsWith(".gerard")){
-        fileName += ".gerard";
+    QFile projectFile(this->projectFullPath);
+    if(projectFile.exists()){
+        projectFile.remove();
     }
 
     QStringList args;
-    args << "-cvf" << fileName;
+    args << "-cvf" << this->projectFullPath;
 
     QDir dir(this->workingDir->path());
     QStringList files = dir.entryList();
@@ -462,6 +487,14 @@ void MainWindow::saveAs(){
     command.setWorkingDirectory(this->workingDir->path());
     command.start("tar", args);
     command.waitForFinished();
+}
+
+void MainWindow::saveAs(){
+    this->projectFullPath = QFileDialog::getSaveFileName(this, tr("Enregistrer le projet"),
+                                                    this->projectName,
+                                                    tr("Files (*.gerard)"));
+
+    this->save();
 }
 
 void MainWindow::exportDraw(){

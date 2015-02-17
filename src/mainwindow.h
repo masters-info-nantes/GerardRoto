@@ -100,7 +100,9 @@ private:
     QCursor * toolCursor;
 
     QString projectName;
+    QString projectFullPath;
     QTemporaryDir* workingDir;
+    int currentIndex = 0;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -108,8 +110,10 @@ public:
 private:
      void createActions();
      void createMenus();
+
      void updateThumbnails();
      void changeCurrentImage(int index);
+     void saveCurrentDraw();
      void setPerspective(bool noProject);
 
 signals:
