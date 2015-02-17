@@ -19,23 +19,6 @@ MainWindow::MainWindow(QWidget *parent)
     this->thumbnailsList->setFlow(QListView::LeftToRight);
     //this->thumbnailsList->setSpacing(6);
 
-    for(int i = 1; i < 22; i++){
-        QLabel* thumbLabel = new QLabel();
-        thumbLabel->setAlignment(Qt::AlignCenter);
-
-        QPixmap* thumbFull = new QPixmap(QDir::currentPath() + "/../img/thumbs/hd-"+ QString::number(i) +".jpeg");
-        QPixmap thumbScaled(thumbFull->scaledToHeight(100));
-
-        thumbLabel->setPixmap(thumbScaled);
-        thumbLabel->setMinimumSize(QSize(thumbScaled.width(), thumbScaled.height()));
-
-        QListWidgetItem* listItem = new QListWidgetItem(this->thumbnailsList);
-        listItem->setSizeHint(QSize(thumbLabel->minimumWidth()+ 30, thumbLabel->minimumHeight()));
-
-        this->thumbnailsList->addItem(listItem);
-        this->thumbnailsList->setItemWidget(listItem, thumbLabel);
-    }
-
     QGridLayout* drawLayout = new QGridLayout();
     this->buttonFreeDraw = new QPushButton();
     connect(this->buttonFreeDraw, SIGNAL(clicked()), this, SLOT(freeDraw()));
@@ -61,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->numberBrushSize = new QSpinBox();
     connect(this->numberBrushSize, SIGNAL(valueChanged(int)), this, SLOT(changePenWidth(int)));
+    this->numberBrushSize->setValue(8);
+
     this->pickerBrushColor = new ColorPicker();
     connect(this->pickerBrushColor, SIGNAL(colorChanged(QColor)), this, SLOT(changePenColor(QColor)));
 
@@ -89,18 +74,25 @@ MainWindow::MainWindow(QWidget *parent)
     QHBoxLayout* controlsLayout = new QHBoxLayout();
     this->buttonBegin = new QPushButton();
     this->buttonBegin->setIcon(QIcon(QPixmap("../img/icons/begin.png")));
+    connect(this->buttonBegin, SIGNAL(clicked()), this, SLOT(begin()));
 
     this->buttonEnd = new QPushButton();
     this->buttonEnd->setIcon(QIcon(QPixmap("../img/icons/end.png")));
+    connect(this->buttonEnd, SIGNAL(clicked()), this, SLOT(end()));
 
     this->buttonBack = new QPushButton();
     this->buttonBack->setIcon(QIcon(QPixmap("../img/icons/backward.png")));
+    connect(this->buttonBack, SIGNAL(clicked()), this, SLOT(back()));
 
     this->buttonNext = new QPushButton();
     this->buttonNext->setIcon(QIcon(QPixmap("../img/icons/forward.png")));
+    connect(this->buttonNext, SIGNAL(clicked()), this, SLOT(next()));
 
-    this->frameNumber = new QLineEdit("0");
+    this->frameNumber = new QLineEdit();
+    connect(this->frameNumber, SIGNAL(returnPressed()), this, SLOT(goFrame()));
     this->buttonGoFrame = new QPushButton("Go");
+    connect(this->buttonGoFrame, SIGNAL(clicked()), this, SLOT(goFrame()));
+
     this->numberPreviousFrames = new QSpinBox();
 
     this->buttonPlayDraws = new QPushButton();
@@ -164,6 +156,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->setCentralWidget(mainWidget);
     this->setWindowTitle(tr("GerardRoto"));
     this->setMinimumSize(1050, 720);
+    this->changeCurrentImage(0);
+    this->setPerspective(true);
 }
 
 void MainWindow::createActions()
@@ -320,6 +314,63 @@ void MainWindow::createMenus()
      this->aboutMenu->addAction(aboutAction);
 }
 
+void MainWindow::updateThumbnails(){
+
+    QDir dir(this->workingDir->path());
+    QStringList files = dir.entryList();
+
+    for(int i = 0; i < files.length(); i++){
+        QString file = files.at(i);
+        if(file == "." || file == ".."){
+            continue;
+        }
+
+        QLabel* thumbLabel = new QLabel();
+        thumbLabel->setAlignment(Qt::AlignCenter);
+
+        QPixmap* thumbFull = new QPixmap(this->workingDir->path() + "/" + file);
+        QPixmap thumbScaled(thumbFull->scaledToHeight(100));
+
+        thumbLabel->setPixmap(thumbScaled);
+        thumbLabel->setMinimumSize(QSize(thumbScaled.width(), thumbScaled.height()));
+
+        QListWidgetItem* listItem = new QListWidgetItem(this->thumbnailsList);
+        listItem->setSizeHint(QSize(thumbLabel->minimumWidth()+ 30, thumbLabel->minimumHeight()));
+
+        this->thumbnailsList->addItem(listItem);
+        this->thumbnailsList->setItemWidget(listItem, thumbLabel);
+    }
+}
+
+void MainWindow::changeCurrentImage(int index){
+
+    int maxIndex = this->thumbnailsList->count() - 1;
+    if(index < 0) index = 0;
+    else if(index > maxIndex) index = maxIndex;
+
+    this->thumbnailsList->setCurrentRow(index);
+    this->frameNumber->setText(QString::number(index + 1));
+
+    // Change image in drawzone
+}
+
+void MainWindow::setPerspective(bool noProject){
+    this->controlsBar->setDisabled(noProject);
+    this->drawBar->setDisabled(noProject);
+    this->thumbnailsList->setDisabled(noProject);
+
+    this->saveAction->setDisabled(noProject);
+    this->saveAsAction->setDisabled(noProject);
+    this->exportDrawAction->setDisabled(noProject);
+    this->exportDrawWithMovieAction->setDisabled(noProject);
+    this->closeAction->setDisabled(noProject);
+
+    this->drawMenu->setDisabled(noProject);
+    this->layersMenu->setDisabled(noProject);
+    this->gotoMenu->setDisabled(noProject);
+    this->viewingMenu->setDisabled(noProject);
+}
+
 /************************** Menu slots ****************************/
 void MainWindow::newProject(){
     NewProjectDialog* dialog = new NewProjectDialog();
@@ -341,10 +392,10 @@ qDebug() << this->workingDir->path();
        command.start("ffmpeg", args);
        command.waitForFinished();
 
-       QDir dir(this->workingDir->path());
-       int imagesCount = dir.entryList().length() - 2; // minus . and ..
-
        this->setWindowTitle("GerardRoto - " + this->projectName);
+       this->updateThumbnails();
+       this->changeCurrentImage(0);
+       this->setPerspective(false);
     }
 }
 
@@ -367,6 +418,9 @@ void MainWindow::open(){
     command.waitForFinished();
 
     this->setWindowTitle("GerardRoto - " + this->projectName);
+    this->updateThumbnails();
+    this->changeCurrentImage(0);
+    this->setPerspective(false);
 }
 
 void MainWindow::save(){
@@ -411,7 +465,10 @@ void MainWindow::exportDrawWithMovie(){
 
 void MainWindow::close(){
     delete this->workingDir;
+    this->thumbnailsList->clear();
+
     this->setWindowTitle("GerardRoto");
+    this->setPerspective(true);
 }
 
 void MainWindow::quit(){
@@ -463,19 +520,25 @@ void MainWindow::peelingsNumber(){
 }
 
 void MainWindow::back(){
-
+    int backIndex = this->thumbnailsList->currentRow() - 1;
+    this->changeCurrentImage(backIndex);
 }
 
 void MainWindow::next(){
-
+    int nextIndex = this->thumbnailsList->currentRow() + 1;
+    this->changeCurrentImage(nextIndex);
 }
 
 void MainWindow::begin(){
-
+    this->changeCurrentImage(0);
 }
 
 void MainWindow::end(){
+    this->changeCurrentImage(this->thumbnailsList->count() - 1);
+}
 
+void MainWindow::goFrame(){
+    this->changeCurrentImage(this->frameNumber->text().toInt() - 1);
 }
 
 void MainWindow::playFromBeginning(){

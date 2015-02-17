@@ -107,6 +107,9 @@ public:
 private:
      void createActions();
      void createMenus();
+     void updateThumbnails();
+     void changeCurrentImage(int index);
+     void setPerspective(bool noProject);
 
 signals:
 
@@ -136,6 +139,7 @@ private slots:
     void next();
     void begin();
     void end();
+    void goFrame();
 
     void playFromBeginning();
     void playWithMovie();

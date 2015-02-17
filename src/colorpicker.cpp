@@ -33,6 +33,8 @@ ColorPicker::ColorPicker(QWidget *parent) :
     }
 
     this->currentColor = new QColor("black");
+    this->colorsLabels->at(0)->setChecked(true);
+
     colorGroup->setExclusive(true);
     this->setLayout(layout);
 }
