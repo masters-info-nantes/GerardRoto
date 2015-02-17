@@ -339,6 +339,8 @@ void MainWindow::updateThumbnails(){
 
         this->thumbnailsList->addItem(listItem);
         this->thumbnailsList->setItemWidget(listItem, thumbLabel);
+
+        delete thumbFull;// not use after
     }
 }
 
