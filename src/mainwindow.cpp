@@ -10,14 +10,12 @@ MainWindow::MainWindow(QWidget *parent)
     // Create widgets
     this->imageView = new StackImage();
     drawzone = new DrawZone(1000,600);
-    this->imageView->push(drawzone);
-    this->imageView->push("../img/fedora2.png");
-    this->imageView->push("../img/hd-1.jpeg");
 
     this->thumbnailsList = new QListWidget();
     this->thumbnailsList->setFixedHeight(130);
     this->thumbnailsList->setFlow(QListView::LeftToRight);
     //this->thumbnailsList->setSpacing(6);
+    connect(this->thumbnailsList, SIGNAL(currentRowChanged(int)), this, SLOT(thumbClick(int)));
 
     QGridLayout* drawLayout = new QGridLayout();
     this->buttonFreeDraw = new QPushButton();
@@ -156,7 +154,6 @@ MainWindow::MainWindow(QWidget *parent)
     this->setCentralWidget(mainWidget);
     this->setWindowTitle(tr("GerardRoto"));
     this->setMinimumSize(1050, 720);
-    this->changeCurrentImage(0);
     this->setPerspective(true);
 }
 
@@ -327,6 +324,7 @@ void MainWindow::updateThumbnails(){
 
         QLabel* thumbLabel = new QLabel();
         thumbLabel->setAlignment(Qt::AlignCenter);
+        thumbLabel->setToolTip(this->workingDir->path() + "/" + file);
 
         QPixmap* thumbFull = new QPixmap(this->workingDir->path() + "/" + file);
         QPixmap thumbScaled(thumbFull->scaledToHeight(100));
@@ -351,7 +349,18 @@ void MainWindow::changeCurrentImage(int index){
     this->thumbnailsList->setCurrentRow(index);
     this->frameNumber->setText(QString::number(index + 1));
 
-    // Change image in drawzone
+    QLabel* label = (QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->currentItem());
+    QFileInfo pictName = QFileInfo(label->toolTip());
+    QString drawName = pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + "." + pictName.suffix();
+
+    /*
+    QPixmap draw = this->drawzone->getImage();
+    draw.save(drawName);
+    */
+
+    this->imageView->removeAll();
+    this->imageView->push(this->drawzone);
+    this->imageView->push(label->toolTip());
 }
 
 void MainWindow::setPerspective(bool noProject){
@@ -407,7 +416,7 @@ void MainWindow::open(){
     QFileInfo selectedFile = QFileInfo(fileName);
     this->projectName = selectedFile.baseName();
     this->workingDir = new QTemporaryDir();
-
+qDebug() << this->workingDir->path();
     QStringList args;
     args << "-xvf" << fileName;
     args << "-C" << this->workingDir->path();
@@ -516,7 +525,7 @@ void MainWindow::onionPeelings(){
 }
 
 void MainWindow::peelingsNumber(){
-
+    int peelingsCount = QInputDialog::getInt(this, "Pelures d'oignons", "Nombre de pelures à afficher", 3, 0, 5);
 }
 
 void MainWindow::back(){
@@ -561,4 +570,8 @@ void MainWindow::mouseEnterDrawZone()
 void MainWindow::mouseLeaveDrawZone()
 {
     this->setCursor(*cursors[CURSOR_BASE]);
+}
+
+void MainWindow::thumbClick(int index){
+    this->changeCurrentImage(index);
 }

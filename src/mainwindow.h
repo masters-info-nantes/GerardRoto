@@ -22,6 +22,7 @@
 #include "newprojectdialog.h"
 #include "drawzone.h"
 #include <QColor>
+#include <QInputDialog>
 
 class MainWindow : public QMainWindow
 {
@@ -146,9 +147,9 @@ private slots:
 
     void about();
 
-
     void mouseEnterDrawZone();
     void mouseLeaveDrawZone();
+    void thumbClick(int index);
 };
 
 #endif // MAINWINDOW_H
