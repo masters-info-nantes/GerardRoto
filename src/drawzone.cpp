@@ -229,5 +229,8 @@ QImage* DrawZone::replaceLayer(QImage* img)
 {
     QImage* tmp = m_image;
     m_image = new QImage(*img);
+    m_undo = 0;
+    m_redo = 0;
+    update();
     return tmp;
 }
