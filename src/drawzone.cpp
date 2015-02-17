@@ -224,3 +224,10 @@ void DrawZone::save(QString filename)
 {
     m_image->save(filename);
 }
+
+QImage* DrawZone::replaceLayer(QImage* img)
+{
+    QImage* tmp = m_image;
+    m_image = new QImage(*img);
+    return tmp;
+}

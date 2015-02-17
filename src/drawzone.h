@@ -40,6 +40,7 @@ public:
     bool redo();
 
     void save(QString filename);
+    QImage* replaceLayer(QImage* img);
 private:
     void newdo();
 signals:
