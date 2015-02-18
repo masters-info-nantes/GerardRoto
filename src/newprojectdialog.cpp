@@ -1,4 +1,5 @@
 #include "newprojectdialog.h"
+#include <QDebug>
 
 NewProjectDialog::NewProjectDialog()
     : QDialog()
@@ -57,7 +58,16 @@ int NewProjectDialog::getSelectedFPSCount(){
 }
 
 void NewProjectDialog::selectFile(){
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Sélectionner une vidéo"), "", "");
-    this->editFile->setText(fileName);
+    // Qt dialog: ugly
+    //QString fileName = QFileDialog::getOpenFileName(this, tr("Sélectionner une vidéo"), QDir::homePath(), tr("Files (*.mp4, *.avi, *.flv)"), new QString(), QFileDialog::DontUseNativeDialog);
+
+    // Linux
+    //QString fileName = QFileDialog::getOpenFileName(this, tr("Sélectionner une vidéo"), QDir::homePath(), tr("Files (*.mp4, *.avi, *.flv)"));
+
+    // OSX & Windows: not support multiple filters and set in a directory
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Sélectionner une vidéo"), QDir::homePath(), "");
+    if(fileName != NULL){
+        this->editFile->setText(fileName);
+    }
 }
 

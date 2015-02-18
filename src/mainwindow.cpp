@@ -155,6 +155,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowTitle(tr("GerardRoto"));
     this->setMinimumSize(1050, 720);
     this->setPerspective(true);
+    this->currentIndex = -1;
 }
 
 void MainWindow::createActions()
@@ -354,7 +355,11 @@ void MainWindow::changeCurrentImage(int index){
     else if(index > maxIndex) index = maxIndex;
 
     // Save current draw layer
-    this->saveCurrentDraw();
+    // Caution: When the first picture is set (project load)
+    // it erase the saved draw with the default draw layer
+    if(currentIndex > 0){
+        this->saveCurrentDraw();
+    }
 
     // Load next draw layer
     this->thumbnailsList->setCurrentRow(index);
@@ -370,7 +375,8 @@ void MainWindow::changeCurrentImage(int index){
         this->drawzone->replaceLayer(new QImage(drawName));
     }
     else {
-        this->drawzone->replaceLayer(new QImage());
+        QImage* blankImage = new QImage(this->drawzone->size(), QImage::Format_ARGB32);
+        this->drawzone->replaceLayer(blankImage);
     }
 
     this->imageView->removeAll();
@@ -386,6 +392,7 @@ void MainWindow::saveCurrentDraw(){
     QFileInfo pictName = QFileInfo(label->toolTip());
     QString drawName = pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png";
     this->drawzone->save(drawName);
+    //qDebug() << drawName + " saved";
 }
 
 // Change perpective between no project opened and
@@ -416,6 +423,7 @@ void MainWindow::newProject(){
        QFileInfo selectedFile = QFileInfo(dialog->getSelectedFile());
        this->projectName = selectedFile.baseName();
        this->workingDir = new QTemporaryDir();
+       this->projectFullPath = "";
 qDebug() << this->workingDir->path();
        QStringList args;
        args << "-i" << dialog->getSelectedFile();
@@ -440,6 +448,10 @@ void MainWindow::open(){
                                                      "",
                                                      tr("Files (*.gerard)"));
 
+    if(this->projectFullPath == NULL){
+        return; // user canceled window
+    }
+
     QFileInfo selectedFile = QFileInfo(this->projectFullPath);
     this->projectName = selectedFile.baseName();
     this->workingDir = new QTemporaryDir();
@@ -460,6 +472,11 @@ qDebug() << this->workingDir->path();
 }
 
 void MainWindow::save(){
+
+    if(this->projectFullPath == ""){
+        this->saveAs();
+        return;
+    }
 
     this->saveCurrentDraw();
 
@@ -496,6 +513,10 @@ void MainWindow::saveAs(){
                                                     this->projectName,
                                                     tr("Files (*.gerard)"));
 
+    if(this->projectFullPath == NULL){
+        return; // user canceled window
+    }
+
     this->save();
 }
 
@@ -509,8 +530,15 @@ void MainWindow::exportDrawWithMovie(){
 
 void MainWindow::close(){
     delete this->workingDir;
+/*
+    for(int i = 0; i < this->thumbnailsList->count(); i++){
+        QLabel* label = (QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->item(i));
+        this->thumbnailsList->removeItemWidget(this->thumbnailsList->item(i));
+        delete label->pixmap();
+        delete label;
+    }
+*/
     this->thumbnailsList->clear();
-
     this->setWindowTitle("GerardRoto");
     this->setPerspective(true);
 }

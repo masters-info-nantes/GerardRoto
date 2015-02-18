@@ -102,7 +102,7 @@ private:
     QString projectName;
     QString projectFullPath;
     QTemporaryDir* workingDir;
-    int currentIndex = 0;
+    int currentIndex;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
