@@ -192,6 +192,7 @@ void DrawZone::newdo()
     m_undo = new QImage(*m_image);
     if(m_redo != 0)
         delete m_redo;
+    emit drawEvent();
 }
 
 bool DrawZone::undo()

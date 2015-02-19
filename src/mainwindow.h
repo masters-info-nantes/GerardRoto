@@ -109,6 +109,7 @@ private:
     const static int DEFAULT_PEELINGS_COUNT = 3;
     int peelingsCount;
 
+    bool allDrawSaved;
 public:
     explicit MainWindow(QWidget *parent = 0);
 
@@ -120,7 +121,7 @@ private:
      void changeCurrentImage(int index);
      void saveCurrentDraw();
      void setPerspective(bool noProject);
-
+     void notSavedIndication(bool display);
 signals:
 
 private slots:
@@ -158,6 +159,7 @@ private slots:
 
     void mouseEnterDrawZone();
     void mouseLeaveDrawZone();
+    void drawZoneNewDraw();
     void thumbClick(int index);
 };
 

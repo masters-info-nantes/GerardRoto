@@ -11,7 +11,8 @@ QString* drawImageName(QString s)
 
 MainWindow::MainWindow(QWidget *parent)
     :QMainWindow(parent),
-      perspective(false)
+      perspective(false),
+      allDrawSaved(true)
 {
     QPalette Pal(palette());
     Pal.setColor(QPalette::Background, Qt::black);
@@ -266,6 +267,8 @@ void MainWindow::createActions()
      // About menu
      this->aboutAction = new QAction(tr("&À Propos"), this);
      connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
+
+     connect(this->drawzone, SIGNAL(drawEvent()), this, SLOT(drawZoneNewDraw()));
 }
 
 void MainWindow::createMenus()
@@ -450,6 +453,19 @@ void MainWindow::setPerspective(bool noProject){
     }
 }
 
+void MainWindow::notSavedIndication(bool display)
+{
+    if(display)
+    {
+        this->setWindowTitle("* " + this->windowTitle());
+    }
+    else
+    {
+        QString currentTitle(this->windowTitle());
+        this->setWindowTitle(currentTitle.right(currentTitle.size()-2));
+    }
+}
+
 /************************** Menu slots ****************************/
 void MainWindow::newProject(){
     NewProjectDialog* dialog = new NewProjectDialog();
@@ -542,6 +558,12 @@ void MainWindow::save(){
     command.setWorkingDirectory(this->workingDir->path());
     command.start("tar", args);
     command.waitForFinished();
+    if(!this->allDrawSaved)
+    {
+        this->allDrawSaved = true;
+        this->notSavedIndication(false);
+    }
+
 }
 
 void MainWindow::saveAs(){
@@ -705,6 +727,15 @@ void MainWindow::mouseEnterDrawZone()
 void MainWindow::mouseLeaveDrawZone()
 {
     this->setCursor(*cursors[CURSOR_BASE]);
+}
+
+void MainWindow::drawZoneNewDraw()
+{
+    if(allDrawSaved)
+    {
+        allDrawSaved = false;
+        notSavedIndication(true);
+    }
 }
 
 void MainWindow::thumbClick(int index){

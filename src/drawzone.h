@@ -44,7 +44,7 @@ public:
 private:
     void newdo();
 signals:
-
+    void drawEvent();
 public slots:
 };
 
