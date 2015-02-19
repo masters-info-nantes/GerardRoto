@@ -17,9 +17,9 @@ public:
     void push(QWidget* img);
     void push(QLayoutItem* img);
     void push(QString imgName);
-    void removeAll();
-    void removeBottom();
-    void removeMiddle();
+    QList<QLayoutItem*>* removeAll();
+    QLayoutItem* removeBottom();
+    QList<QLayoutItem*>* removeMiddle();
 
     void enterEvent(QEvent*);
     void leaveEvent(QEvent*);

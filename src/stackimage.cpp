@@ -1,16 +1,6 @@
 #include "stackimage.h"
 #include "drawzone.h"
 #include "imagewidget.h"
-#include <QLabel>
-
-/*QWidget* makeImage(QString name, int scaledWidth)
-{
-    QLabel* img = new QLabel();
-    QPixmap imgPix(name);
-    imgPix = imgPix.scaledToWidth(scaledWidth);
-    img->setPixmap(imgPix);
-    return img;
-}*/
 
 QWidget* makeImage(QString name)
 {
@@ -43,6 +33,7 @@ void StackImage::push(QWidget *img)
 {
     this->layout()->addWidget(img);
     m_stackSize++;
+    update();
 }
 
 void StackImage::push(QLayoutItem *img)
@@ -55,31 +46,45 @@ void StackImage::push(QString imgName)
     this->push(makeImage(imgName));
 }
 
-void StackImage::removeAll()
+QList<QLayoutItem*>* StackImage::removeAll()
 {
+    QList<QLayoutItem*>* list(new QList<QLayoutItem*>());
+    QLayoutItem* item;
     while(!this->layout()->isEmpty())
     {
-        this->layout()->removeItem(this->layout()->itemAt(0));
+        item = this->layout()->itemAt(0);
+        this->layout()->removeItem(item);
+        list->append(item);
     }
     m_stackSize = 0;
+    update();
+    return list;
 }
 
-void StackImage::removeBottom()
+QLayoutItem* StackImage::removeBottom()
 {
     if(!this->layout()->isEmpty())
     {
         m_stackSize--;
-        this->layout()->removeItem(this->layout()->itemAt(m_stackSize));
+        QLayoutItem* item(this->layout()->itemAt(m_stackSize));
+        this->layout()->removeItem(item);
+        update();
+        return item;
     }
+    return 0;
 }
 
-void StackImage::removeMiddle()
+QList<QLayoutItem*>* StackImage::removeMiddle()
 {
-
-    for(int i=(m_stackSize-2);i>0;i--)
-    {
-        this->layout()->removeItem(this->layout()->itemAt(i));
-    }
+    QLayoutItem* top(this->layout()->itemAt(0));
+    QLayoutItem* bottom(this->layout()->itemAt(m_stackSize-1));
+    this->layout()->removeItem(top);
+    this->layout()->removeItem(bottom);
+    QList<QLayoutItem*>* list(this->removeAll());
+    this->layout()->addItem(top);
+    this->layout()->addItem(bottom);
+    update();
+    return list;
 }
 
 void StackImage::enterEvent(QEvent*)

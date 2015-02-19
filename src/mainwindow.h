@@ -103,6 +103,10 @@ private:
     QString projectFullPath;
     QTemporaryDir* workingDir;
     int currentIndex;
+    bool backgroundDisplayed;
+    bool onionDisplayed;
+    const static int DEFAULT_PEELINGS_COUNT = 3;
+    int peelingsCount;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -136,8 +140,8 @@ private slots:
     void changePenColor(QColor color);
     void changePenWidth(int width);
 
-    void displayBackgroundMovie();
-    void onionPeelings();
+    void displayBackgroundMovie(bool active);
+    void onionPeelings(bool active);
     void peelingsNumber();
 
     void back();

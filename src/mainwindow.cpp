@@ -1,6 +1,18 @@
 #include "mainwindow.h"
 #include "drawzone.h"
 
+QString* drawImageName(QString s)
+{
+    //QFileInfo pictName(QFileInfo(label->toolTip()));
+    //QString drawName(pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png");
+
+    QFileInfo pictName(s);
+    QString *drawName(new QString(pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png"));
+
+    return drawName;
+    //return 0;
+}
+
 MainWindow::MainWindow(QWidget *parent)
     :QMainWindow(parent)
 {
@@ -156,6 +168,10 @@ MainWindow::MainWindow(QWidget *parent)
     this->setMinimumSize(1050, 720);
     this->setPerspective(true);
     this->currentIndex = -1;
+
+    backgroundDisplayed = true;
+    onionDisplayed = false;
+    peelingsCount = DEFAULT_PEELINGS_COUNT;
 }
 
 void MainWindow::createActions()
@@ -216,12 +232,12 @@ void MainWindow::createActions()
      this->displayBackgroundMovieAction = new QAction(tr("&Film en fond"), this);
      this->displayBackgroundMovieAction->setCheckable(true);
      this->displayBackgroundMovieAction->setChecked(true);
-     connect(displayBackgroundMovieAction, SIGNAL(triggered()), this, SLOT(displayBackgroundMovie()));
+     connect(displayBackgroundMovieAction, SIGNAL(toggled(bool)), this, SLOT(displayBackgroundMovie(bool)));
 
      this->onionPeelingsAction = new QAction(tr("&Pelures d'oignon"), this);
      this->onionPeelingsAction->setCheckable(true);
      this->onionPeelingsAction->setChecked(false);
-     connect(onionPeelingsAction, SIGNAL(triggered()), this, SLOT(onionPeelings()));
+     connect(onionPeelingsAction, SIGNAL(toggled(bool)), this, SLOT(onionPeelings(bool)));
 
      this->peelingsNumberAction = new QAction(tr("&Nombre de pelures..."), this);
      connect(peelingsNumberAction, SIGNAL(triggered()), this, SLOT(peelingsNumber()));
@@ -357,7 +373,7 @@ void MainWindow::changeCurrentImage(int index){
     // Save current draw layer
     // Caution: When the first picture is set (project load)
     // it erase the saved draw with the default draw layer
-    if(currentIndex > 0){
+    if(currentIndex >= 0){
         this->saveCurrentDraw();
     }
 
@@ -365,24 +381,42 @@ void MainWindow::changeCurrentImage(int index){
     this->thumbnailsList->setCurrentRow(index);
     this->frameNumber->setText(QString::number(index + 1));
 
-    QLabel* label = (QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->item(index));
-    QFileInfo pictName = QFileInfo(label->toolTip());
-    QString drawName = pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png";
+    QLabel* label((QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->item(index)));
+
+    //QFileInfo pictName(QFileInfo(label->toolTip()));
+    //QString drawName(pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png");
+    QString drawName(drawImageName(label->toolTip())->constData());
 
     // Replace draw zone layer (empty if not exists)
     QFile nextDrawFile(drawName);
+    QImage *back, *img;
     if(nextDrawFile.exists()){
-        this->drawzone->replaceLayer(new QImage(drawName));
+        img = new QImage(drawName);
+        back = this->drawzone->replaceLayer(img);
     }
-    else {
-        QImage* blankImage = new QImage(this->drawzone->size(), QImage::Format_ARGB32);
-        this->drawzone->replaceLayer(blankImage);
+    else
+    {
+        img = new QImage(this->drawzone->size(), QImage::Format_ARGB32);
+        back = this->drawzone->replaceLayer(img);
     }
 
+    if(this->backgroundDisplayed)
+    {
+        QLayoutItem* previousBackground(this->imageView->removeBottom());
+        delete previousBackground;
+    }
     this->imageView->removeAll();
     this->imageView->push(this->drawzone);
-    this->imageView->push(label->toolTip());
+    if(this->backgroundDisplayed)
+        this->imageView->push(label->toolTip());
+    if(this->onionDisplayed)
+    {
+        this->onionDisplayed = false;
+        this->onionPeelings(true);
+    }
     this->currentIndex = index;
+    delete img;
+    delete back;
 }
 
 // Save current draw layer
@@ -391,7 +425,7 @@ void MainWindow::saveCurrentDraw(){
     if(label == NULL) return;
     QFileInfo pictName = QFileInfo(label->toolTip());
     QString drawName = pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png";
-    this->drawzone->save(drawName);
+    this->drawzone->save(drawName);// TODO save with original image size
     //qDebug() << drawName + " saved";
 }
 
@@ -424,7 +458,7 @@ void MainWindow::newProject(){
        this->projectName = selectedFile.baseName();
        this->workingDir = new QTemporaryDir();
        this->projectFullPath = "";
-qDebug() << this->workingDir->path();
+       qDebug() << this->workingDir->path();
        QStringList args;
        args << "-i" << dialog->getSelectedFile();
        args << "-r" << QString::number(dialog->getSelectedFPSCount());
@@ -455,7 +489,7 @@ void MainWindow::open(){
     QFileInfo selectedFile = QFileInfo(this->projectFullPath);
     this->projectName = selectedFile.baseName();
     this->workingDir = new QTemporaryDir();
-qDebug() << this->workingDir->path();
+    qDebug() << this->workingDir->path();
     QStringList args;
     args << "-xvf" << this->projectFullPath;
     args << "-C" << this->workingDir->path();
@@ -530,15 +564,8 @@ void MainWindow::exportDrawWithMovie(){
 
 void MainWindow::close(){
     delete this->workingDir;
-/*
-    for(int i = 0; i < this->thumbnailsList->count(); i++){
-        QLabel* label = (QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->item(i));
-        this->thumbnailsList->removeItemWidget(this->thumbnailsList->item(i));
-        delete label->pixmap();
-        delete label;
-    }
-*/
     this->thumbnailsList->clear();
+    // TODO clear this->drawzone
     this->setWindowTitle("GerardRoto");
     this->setPerspective(true);
 }
@@ -579,16 +606,58 @@ void MainWindow::changePenColor(QColor color){
     this->drawzone->setPenColor(color);
 }
 
-void MainWindow::displayBackgroundMovie(){
-
+void MainWindow::displayBackgroundMovie(bool active){
+    if(this->backgroundDisplayed != active)
+    {
+        if(active)
+        {
+            int index = this->thumbnailsList->currentRow();
+            QString backgroundName = ((QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->item(index)))->toolTip();
+            this->imageView->push(backgroundName);
+        }
+        else
+        {
+            this->imageView->removeBottom();
+        }
+        this->backgroundDisplayed = active;
+    }
 }
 
-void MainWindow::onionPeelings(){
-
+void MainWindow::onionPeelings(bool active){
+    if(this->onionDisplayed != active)
+    {
+        if(active)
+        {
+            int index = this->thumbnailsList->currentRow();
+            bool backgroundDisplayedBefore(this->backgroundDisplayed);
+            if(backgroundDisplayedBefore)
+                this->displayBackgroundMovie(false);
+            //bottom = this->imageView->removeBottom();
+            int min(index-this->peelingsCount);
+            if(min < 0)
+                min = 0;
+            for(int i=index-1;i>=min;i--)
+            {
+                QString imageName(((QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->item(i)))->toolTip());
+                QString drawImage(drawImageName(imageName)->constData());
+                if(QFile(drawImage).exists())
+                    this->imageView->push(drawImage);
+            }
+            if(backgroundDisplayedBefore)
+                this->displayBackgroundMovie(true);
+        }
+        else
+        {
+            this->imageView->removeMiddle();
+            if(!this->backgroundDisplayed)
+                this->imageView->removeBottom();
+        }
+        this->onionDisplayed = active;
+    }
 }
 
 void MainWindow::peelingsNumber(){
-    int peelingsCount = QInputDialog::getInt(this, "Pelures d'oignons", "Nombre de pelures à afficher", 3, 0, 5);
+    this->peelingsCount = QInputDialog::getInt(this, "Pelures d'oignons", "Nombre de pelures à afficher", this->peelingsCount, 0, 5);
 }
 
 void MainWindow::back(){
@@ -614,11 +683,11 @@ void MainWindow::goFrame(){
 }
 
 void MainWindow::playFromBeginning(){
-
+    // TODO MainWindow::playFromBeginning()
 }
 
 void MainWindow::playWithMovie(){
-
+    // TODO MainWindow::playWithMovie()
 }
 
 void MainWindow::about(){
@@ -627,6 +696,7 @@ void MainWindow::about(){
 
 void MainWindow::mouseEnterDrawZone()
 {
+    // TODO only if a project is open
     this->setCursor(*toolCursor);
 }
 
