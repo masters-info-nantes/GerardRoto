@@ -3,18 +3,15 @@
 
 QString* drawImageName(QString s)
 {
-    //QFileInfo pictName(QFileInfo(label->toolTip()));
-    //QString drawName(pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png");
-
     QFileInfo pictName(s);
     QString *drawName(new QString(pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png"));
 
     return drawName;
-    //return 0;
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    :QMainWindow(parent)
+    :QMainWindow(parent),
+      perspective(true)
 {
     QPalette Pal(palette());
     Pal.setColor(QPalette::Background, Qt::black);
@@ -432,20 +429,25 @@ void MainWindow::saveCurrentDraw(){
 // Change perpective between no project opened and
 // project openend
 void MainWindow::setPerspective(bool noProject){
-    this->controlsBar->setDisabled(noProject);
-    this->drawBar->setDisabled(noProject);
-    this->thumbnailsList->setDisabled(noProject);
+    if(this->perspective != noProject)
+    {
+        this->perspective = noProject;
 
-    this->saveAction->setDisabled(noProject);
-    this->saveAsAction->setDisabled(noProject);
-    this->exportDrawAction->setDisabled(noProject);
-    this->exportDrawWithMovieAction->setDisabled(noProject);
-    this->closeAction->setDisabled(noProject);
+        this->controlsBar->setDisabled(noProject);
+        this->drawBar->setDisabled(noProject);
+        this->thumbnailsList->setDisabled(noProject);
 
-    this->drawMenu->setDisabled(noProject);
-    this->layersMenu->setDisabled(noProject);
-    this->gotoMenu->setDisabled(noProject);
-    this->viewingMenu->setDisabled(noProject);
+        this->saveAction->setDisabled(noProject);
+        this->saveAsAction->setDisabled(noProject);
+        this->exportDrawAction->setDisabled(noProject);
+        this->exportDrawWithMovieAction->setDisabled(noProject);
+        this->closeAction->setDisabled(noProject);
+
+        this->drawMenu->setDisabled(noProject);
+        this->layersMenu->setDisabled(noProject);
+        this->gotoMenu->setDisabled(noProject);
+        this->viewingMenu->setDisabled(noProject);
+    }
 }
 
 /************************** Menu slots ****************************/
@@ -568,6 +570,7 @@ void MainWindow::close(){
     // TODO clear this->drawzone
     this->setWindowTitle("GerardRoto");
     this->setPerspective(true);
+    this->mouseLeaveDrawZone();
 }
 
 void MainWindow::quit(){
@@ -632,7 +635,6 @@ void MainWindow::onionPeelings(bool active){
             bool backgroundDisplayedBefore(this->backgroundDisplayed);
             if(backgroundDisplayedBefore)
                 this->displayBackgroundMovie(false);
-            //bottom = this->imageView->removeBottom();
             int min(index-this->peelingsCount);
             if(min < 0)
                 min = 0;
@@ -696,8 +698,8 @@ void MainWindow::about(){
 
 void MainWindow::mouseEnterDrawZone()
 {
-    // TODO only if a project is open
-    this->setCursor(*toolCursor);
+    if(!this->perspective)
+        this->setCursor(*toolCursor);
 }
 
 void MainWindow::mouseLeaveDrawZone()

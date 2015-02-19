@@ -99,6 +99,7 @@ private:
     const static int CURSOR_ERASER= 3;
     QCursor * toolCursor;
 
+    bool perspective;// true = no project | false = project open
     QString projectName;
     QString projectFullPath;
     QTemporaryDir* workingDir;
