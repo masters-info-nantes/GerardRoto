@@ -579,11 +579,85 @@ void MainWindow::saveAs(){
 }
 
 void MainWindow::exportDraw(){
+    QString drawArchive = QFileDialog::getSaveFileName(this, tr("Export des dessins"),
+                                                    this->projectName + "-draws",
+                                                    tr("Files (*.tar)"));
 
+    this->saveCurrentDraw();
+
+    if(!drawArchive.endsWith(".tar")){
+        drawArchive += ".tar";
+    }
+
+    QFile exportFile(drawArchive);
+    if(exportFile.exists()){
+        exportFile.remove();
+    }
+
+    QStringList args;
+    args << "-cvf" << drawArchive;
+
+    QDir dir(this->workingDir->path());
+    QStringList files = dir.entryList();
+
+    for(int i = 0; i < files.length(); i++){
+        QString file = files.at(i);
+        if(file != "." && file != ".." && file.endsWith(".draw.png")){
+            args << file;
+        }
+    }
+
+    QProcess command;
+    command.setWorkingDirectory(this->workingDir->path());
+    command.start("tar", args);
+    command.waitForFinished();
 }
 
 void MainWindow::exportDrawWithMovie(){
+    QString drawArchive = QFileDialog::getSaveFileName(this, tr("Export des dessins avec le film"),
+                                                    this->projectName + "-drawmovie",
+                                                    tr("Files (*.tar)"));
 
+    this->saveCurrentDraw();
+
+    if(!drawArchive.endsWith(".tar")){
+        drawArchive += ".tar";
+    }
+
+    QFile exportFile(drawArchive);
+    if(exportFile.exists()){
+        exportFile.remove();
+    }
+
+    QStringList args;
+    args << "-cvf" << drawArchive;
+
+    QDir dir(this->workingDir->path());
+    QStringList files = dir.entryList();
+
+    // Todo: draw must the same size as movie picture
+    for(int i = 0; i < files.length(); i++){
+        QString file = files.at(i);
+        if(file != "." && file != ".." && file.endsWith(".draw.png")){
+            QFileInfo drawFile(file);
+
+            QImage drawPict(this->workingDir->path() + "/" + file), moviePic(this->workingDir->path() + "/" + drawFile.baseName() + ".jpeg");
+            moviePic.setAlphaChannel(drawPict.alphaChannel());
+
+            QString multiName = this->workingDir->path() + "/" + drawFile.baseName() + ".multi.png";
+            moviePic.save(multiName);
+
+            args << multiName;
+        }
+    }
+/*
+    QProcess command;
+    command.setWorkingDirectory(this->workingDir->path());
+    command.start("tar", args);
+    command.waitForFinished();
+
+    QProcess::execute("rm -rf ./*.multi.png");
+*/
 }
 
 void MainWindow::close(){
