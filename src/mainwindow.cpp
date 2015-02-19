@@ -11,7 +11,7 @@ QString* drawImageName(QString s)
 
 MainWindow::MainWindow(QWidget *parent)
     :QMainWindow(parent),
-      perspective(true)
+      perspective(false)
 {
     QPalette Pal(palette());
     Pal.setColor(QPalette::Background, Qt::black);
