@@ -39,7 +39,7 @@ public:
     bool undo();
     bool redo();
 
-    void save(QString filename);
+    void save(QString filename, QSize size);
     QImage* replaceLayer(QImage* img);
 private:
     void newdo();

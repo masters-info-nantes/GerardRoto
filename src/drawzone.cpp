@@ -221,9 +221,10 @@ bool DrawZone::redo()
     return false;
 }
 
-void DrawZone::save(QString filename)
+void DrawZone::save(QString filename, QSize size)
 {
-    m_image->save(filename);
+    QImage scaledDraw(m_image->scaled(size));
+    scaledDraw.save(filename);
 }
 
 QImage* DrawZone::replaceLayer(QImage* img)

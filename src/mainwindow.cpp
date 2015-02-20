@@ -423,9 +423,11 @@ void MainWindow::changeCurrentImage(int index){
 void MainWindow::saveCurrentDraw(){
     QLabel* label = (QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->item(this->currentIndex));
     if(label == NULL) return;
+
     QFileInfo pictName = QFileInfo(label->toolTip());
     QString drawName = pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png";
-    this->drawzone->save(drawName);// TODO save with original image size
+
+    this->drawzone->save(drawName, QPixmap(label->toolTip()).size());
     //qDebug() << drawName + " saved";
 }
 
@@ -635,7 +637,7 @@ void MainWindow::exportDrawWithMovie(){
     QDir dir(this->workingDir->path());
     QStringList files = dir.entryList();
 
-    // Todo: draw must the same size as movie picture
+    // Todo: not work for the moment
     for(int i = 0; i < files.length(); i++){
         QString file = files.at(i);
         if(file != "." && file != ".." && file.endsWith(".draw.png")){
