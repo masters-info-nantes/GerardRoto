@@ -1,7 +1,9 @@
 #include "colorpicker.h"
 
 ColorPicker::ColorPicker(QWidget *parent) :
-    QWidget(parent)
+    QWidget(parent),
+    colorsLabels(new QVector<QPushButton*>()),
+    currentColor(new QColor("black"))
 {
     QStringList colorList;
     colorList << "black" << "white" << "gray" << "blue"
@@ -12,7 +14,6 @@ ColorPicker::ColorPicker(QWidget *parent) :
     layout->setContentsMargins(10, 10, 10, 10);
 
     QButtonGroup* colorGroup = new QButtonGroup();
-    this->colorsLabels = new QVector<QPushButton*>();
     for(int i = 0; i < 8; i++){
         QPushButton* currentButton = new QPushButton();
         currentButton->setAutoFillBackground(true);
@@ -32,7 +33,6 @@ ColorPicker::ColorPicker(QWidget *parent) :
         this->colorsLabels->push_back(currentButton);
     }
 
-    this->currentColor = new QColor("black");
     this->colorsLabels->at(0)->setChecked(true);
 
     colorGroup->setExclusive(true);

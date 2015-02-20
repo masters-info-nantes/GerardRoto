@@ -12,11 +12,12 @@ QString* drawImageName(QString s)
 MainWindow::MainWindow(QWidget *parent)
     :QMainWindow(parent),
       perspective(false),
+      currentIndex(-1),
+      backgroundDisplayed(true),
+      onionDisplayed(false),
+      peelingsCount(DEFAULT_PEELINGS_COUNT),
       allDrawSaved(true)
 {
-    QPalette Pal(palette());
-    Pal.setColor(QPalette::Background, Qt::black);
-
     // Create widgets
     this->imageView = new StackImage();
     drawzone = new DrawZone(1000,600);
@@ -165,11 +166,6 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowTitle(tr("GerardRoto"));
     this->setMinimumSize(1050, 720);
     this->setPerspective(true);
-    this->currentIndex = -1;
-
-    backgroundDisplayed = true;
-    onionDisplayed = false;
-    peelingsCount = DEFAULT_PEELINGS_COUNT;
 }
 
 void MainWindow::createActions()
@@ -333,10 +329,10 @@ void MainWindow::createMenus()
 void MainWindow::updateThumbnails(){
 
     QDir dir(this->workingDir->path());
-    QStringList files = dir.entryList();
+    QStringList files(dir.entryList());
 
     for(int i = 0; i < files.length(); i++){
-        QString file = files.at(i);
+        QString file(files.at(i));
         if(file == "." || file == ".." || file.endsWith(".draw.png")){
             continue;
         }
@@ -366,14 +362,14 @@ void MainWindow::updateThumbnails(){
 // - loads next image and draw layer
 void MainWindow::changeCurrentImage(int index){
 
-    int maxIndex = this->thumbnailsList->count() - 1;
+    int maxIndex(this->thumbnailsList->count() - 1);
     if(index < 0) index = 0;
     else if(index > maxIndex) index = maxIndex;
 
     // Save current draw layer
     // Caution: When the first picture is set (project load)
     // it erase the saved draw with the default draw layer
-    if(currentIndex >= 0){
+    if(this->currentIndex >= 0){
         this->saveCurrentDraw();
     }
 
@@ -405,10 +401,14 @@ void MainWindow::changeCurrentImage(int index){
         QLayoutItem* previousBackground(this->imageView->removeBottom());
         delete previousBackground;
     }
+
     this->imageView->removeAll();
     this->imageView->push(this->drawzone);
-    if(this->backgroundDisplayed)
+
+    if(this->backgroundDisplayed){
         this->imageView->push(label->toolTip());
+    }
+
     if(this->onionDisplayed)
     {
         this->onionDisplayed = false;
@@ -424,8 +424,8 @@ void MainWindow::saveCurrentDraw(){
     QLabel* label = (QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->item(this->currentIndex));
     if(label == NULL) return;
 
-    QFileInfo pictName = QFileInfo(label->toolTip());
-    QString drawName = pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png";
+    QFileInfo pictName(QFileInfo(label->toolTip()));
+    QString drawName(pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png");
 
     this->drawzone->save(drawName, QPixmap(label->toolTip()).size());
     //qDebug() << drawName + " saved";
@@ -474,11 +474,14 @@ void MainWindow::newProject(){
 
     if(dialog->exec() == QDialog::Accepted){
 
-       QFileInfo selectedFile = QFileInfo(dialog->getSelectedFile());
+       QFileInfo selectedFile(QFileInfo(dialog->getSelectedFile()));
+
        this->projectName = selectedFile.baseName();
        this->workingDir = new QTemporaryDir();
        this->projectFullPath = "";
+
        qDebug() << this->workingDir->path();
+
        QStringList args;
        args << "-i" << dialog->getSelectedFile();
        args << "-r" << QString::number(dialog->getSelectedFPSCount());
@@ -506,9 +509,11 @@ void MainWindow::open(){
         return; // user canceled window
     }
 
-    QFileInfo selectedFile = QFileInfo(this->projectFullPath);
+    QFileInfo selectedFile(QFileInfo(this->projectFullPath));
+
     this->projectName = selectedFile.baseName();
     this->workingDir = new QTemporaryDir();
+
     qDebug() << this->workingDir->path();
     QStringList args;
     args << "-xvf" << this->projectFullPath;
@@ -547,10 +552,10 @@ void MainWindow::save(){
     args << "-cvf" << this->projectFullPath;
 
     QDir dir(this->workingDir->path());
-    QStringList files = dir.entryList();
+    QStringList files(dir.entryList());
 
     for(int i = 0; i < files.length(); i++){
-        QString file = files.at(i);
+        QString file(files.at(i));
         if(file != "." && file != ".."){
             args << file;
         }
@@ -560,6 +565,7 @@ void MainWindow::save(){
     command.setWorkingDirectory(this->workingDir->path());
     command.start("tar", args);
     command.waitForFinished();
+
     if(!this->allDrawSaved)
     {
         this->allDrawSaved = true;
@@ -581,9 +587,9 @@ void MainWindow::saveAs(){
 }
 
 void MainWindow::exportDraw(){
-    QString drawArchive = QFileDialog::getSaveFileName(this, tr("Export des dessins"),
+    QString drawArchive(QFileDialog::getSaveFileName(this, tr("Export des dessins"),
                                                     this->projectName + "-draws",
-                                                    tr("Files (*.tar)"));
+                                                    tr("Files (*.tar)")));
 
     this->saveCurrentDraw();
 
@@ -600,10 +606,10 @@ void MainWindow::exportDraw(){
     args << "-cvf" << drawArchive;
 
     QDir dir(this->workingDir->path());
-    QStringList files = dir.entryList();
+    QStringList files(dir.entryList());
 
     for(int i = 0; i < files.length(); i++){
-        QString file = files.at(i);
+        QString file (files.at(i));
         if(file != "." && file != ".." && file.endsWith(".draw.png")){
             args << file;
         }
@@ -616,9 +622,9 @@ void MainWindow::exportDraw(){
 }
 
 void MainWindow::exportDrawWithMovie(){
-    QString drawArchive = QFileDialog::getSaveFileName(this, tr("Export des dessins avec le film"),
+    QString drawArchive(QFileDialog::getSaveFileName(this, tr("Export des dessins avec le film"),
                                                     this->projectName + "-drawmovie",
-                                                    tr("Files (*.tar)"));
+                                                    tr("Files (*.tar)")));
 
     this->saveCurrentDraw();
 
@@ -635,31 +641,36 @@ void MainWindow::exportDrawWithMovie(){
     args << "-cvf" << drawArchive;
 
     QDir dir(this->workingDir->path());
-    QStringList files = dir.entryList();
+    QStringList files(dir.entryList());
 
-    // Todo: not work for the moment
+    QDir().mkdir(this->workingDir->path() + "/" + "export");
     for(int i = 0; i < files.length(); i++){
-        QString file = files.at(i);
+        QString file(files.at(i));
         if(file != "." && file != ".." && file.endsWith(".draw.png")){
             QFileInfo drawFile(file);
 
-            QImage drawPict(this->workingDir->path() + "/" + file), moviePic(this->workingDir->path() + "/" + drawFile.baseName() + ".jpeg");
-            moviePic.setAlphaChannel(drawPict.alphaChannel());
+            QImage drawPic(this->workingDir->path() + "/" + file), moviePic(this->workingDir->path() + "/" + drawFile.baseName() + ".jpeg");
+            QImage result(moviePic.size() ,QImage::Format_RGB32);
 
-            QString multiName = this->workingDir->path() + "/" + drawFile.baseName() + ".multi.png";
-            moviePic.save(multiName);
+            QPainter painter;
+            painter.begin(&result);
+            painter.drawImage(0, 0, moviePic);
+            painter.drawImage(0, 0, drawPic);
+            painter.end();
+
+            QString multiName(this->workingDir->path() + "/export/" + drawFile.baseName() + ".multi.jpeg");
+            result.save(multiName);
 
             args << multiName;
         }
     }
-/*
+
     QProcess command;
     command.setWorkingDirectory(this->workingDir->path());
     command.start("tar", args);
     command.waitForFinished();
 
-    QProcess::execute("rm -rf ./*.multi.png");
-*/
+    QDir(this->workingDir->path() + "/export").removeRecursively();
 }
 
 void MainWindow::close(){
