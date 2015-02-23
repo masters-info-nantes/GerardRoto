@@ -230,7 +230,7 @@ void DrawZone::save(QString filename, QSize size)
 QImage* DrawZone::replaceLayer(QImage* img)
 {
     QImage* tmp = m_image;
-    m_image = new QImage(*img);
+    m_image = new QImage(img->scaled(tmp->size()));
     m_undo = 0;
     m_redo = 0;
     update();
