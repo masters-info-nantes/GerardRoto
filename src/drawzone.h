@@ -41,6 +41,7 @@ public:
 
     void save(QString filename, QSize size);
     QImage* replaceLayer(QImage* img);
+    QImage* clear();
 private:
     void newdo();
 signals:

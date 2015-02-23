@@ -231,8 +231,30 @@ QImage* DrawZone::replaceLayer(QImage* img)
 {
     QImage* tmp = m_image;
     m_image = new QImage(img->scaled(tmp->size()));
-    m_undo = 0;
-    m_redo = 0;
+    if(m_undo != 0) {
+        delete m_undo;
+        m_undo = 0;
+    }
+    if(m_redo != 0) {
+        delete m_redo;
+        m_redo = 0;
+    }
+    update();
+    return tmp;
+}
+
+QImage* DrawZone::clear()
+{
+    QImage* tmp = m_image;
+    m_image = new QImage(tmp->size(),QImage::Format_ARGB32);
+    if(m_undo != 0) {
+        delete m_undo;
+        m_undo = 0;
+    }
+    if(m_redo != 0) {
+        delete m_redo;
+        m_redo = 0;
+    }
     update();
     return tmp;
 }

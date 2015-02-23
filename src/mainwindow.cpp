@@ -678,7 +678,8 @@ void MainWindow::close(){
         this->save();// TODO dialog before "yes, save" "no, don't save" "cancel"
     delete this->workingDir;
     this->thumbnailsList->clear();
-    // TODO clear this->drawzone
+    QImage* back = this->drawzone->clear();
+    delete back;
     this->setWindowTitle("GerardRoto");
     this->setPerspective(true);
     this->mouseLeaveDrawZone();
