@@ -31,18 +31,18 @@ MainWindow::MainWindow(QWidget *parent)
     QGridLayout* drawLayout = new QGridLayout();
     this->buttonFreeDraw = new QPushButton();
     connect(this->buttonFreeDraw, SIGNAL(clicked()), this, SLOT(freeDraw()));
-    this->buttonFreeDraw->setIcon(QIcon(QPixmap("../img/icons/pencil.png")));
+    this->buttonFreeDraw->setIcon(QIcon(QPixmap(":icons/img/icons/pencil.png")));
     this->buttonFreeDraw->setCheckable(true);
     this->buttonFreeDraw->setChecked(true);
 
     this->buttonLineDraw = new QPushButton();
     connect(this->buttonLineDraw, SIGNAL(clicked()), this, SLOT(lineDraw()));
-    this->buttonLineDraw->setIcon(QIcon(QPixmap("../img/icons/line.png")));
+    this->buttonLineDraw->setIcon(QIcon(QPixmap(":icons/img/icons/line.png")));
     this->buttonLineDraw->setCheckable(true);
 
     this->buttonEraser = new QPushButton();
     connect(this->buttonEraser, SIGNAL(clicked()), this, SLOT(eraser()));
-    this->buttonEraser->setIcon(QIcon(QPixmap("../img/icons/eraser.png")));
+    this->buttonEraser->setIcon(QIcon(QPixmap(":icons/img/icons/eraser.png")));
     this->buttonEraser->setCheckable(true);
 
     QButtonGroup* drawButtonGroup = new QButtonGroup();
@@ -82,19 +82,19 @@ MainWindow::MainWindow(QWidget *parent)
 
     QHBoxLayout* controlsLayout = new QHBoxLayout();
     this->buttonBegin = new QPushButton();
-    this->buttonBegin->setIcon(QIcon(QPixmap("../img/icons/begin.png")));
+    this->buttonBegin->setIcon(QIcon(QPixmap(":icons/img/icons/begin.png")));
     connect(this->buttonBegin, SIGNAL(clicked()), this, SLOT(begin()));
 
     this->buttonEnd = new QPushButton();
-    this->buttonEnd->setIcon(QIcon(QPixmap("../img/icons/end.png")));
+    this->buttonEnd->setIcon(QIcon(QPixmap(":icons/img/icons/end.png")));
     connect(this->buttonEnd, SIGNAL(clicked()), this, SLOT(end()));
 
     this->buttonBack = new QPushButton();
-    this->buttonBack->setIcon(QIcon(QPixmap("../img/icons/backward.png")));
+    this->buttonBack->setIcon(QIcon(QPixmap(":icons/img/icons/backward.png")));
     connect(this->buttonBack, SIGNAL(clicked()), this, SLOT(back()));
 
     this->buttonNext = new QPushButton();
-    this->buttonNext->setIcon(QIcon(QPixmap("../img/icons/forward.png")));
+    this->buttonNext->setIcon(QIcon(QPixmap(":icons/img/icons/forward.png")));
     connect(this->buttonNext, SIGNAL(clicked()), this, SLOT(next()));
 
     this->frameNumber = new QLineEdit();
@@ -105,14 +105,14 @@ MainWindow::MainWindow(QWidget *parent)
     this->numberPreviousFrames = new QSpinBox();
 
     this->buttonPlayDraws = new QPushButton();
-    this->buttonPlayDraws->setIcon(QIcon(QPixmap("../img/icons/play.png")));
+    this->buttonPlayDraws->setIcon(QIcon(QPixmap(":icons/img/icons/play.png")));
 
     this->labelWithMovie = new QLabel();
-    this->labelWithMovie->setPixmap(QPixmap("../img/icons/movie.png").scaledToHeight(20));
+    this->labelWithMovie->setPixmap(QPixmap(":icons/img/icons/movie.png").scaledToHeight(20));
 
     this->checkPlayWithMovie = new QCheckBox();
     this->buttonPlayFull = new QPushButton("Depuis le début");
-    this->buttonPlayFull->setIcon(QIcon(QPixmap("../img/icons/play.png")));
+    this->buttonPlayFull->setIcon(QIcon(QPixmap(":icons/img/icons/play.png")));
 
     controlsLayout->addWidget(this->buttonBegin);
     controlsLayout->addWidget(this->buttonBack);
@@ -151,10 +151,10 @@ MainWindow::MainWindow(QWidget *parent)
     this->createActions();
     this->createMenus();
 
-    cursors[CURSOR_BASE] = new QCursor(QPixmap("../img/cursors/base.png"));
-    cursors[CURSOR_FREE] = new QCursor(QPixmap("../img/cursors/pencil.png"));
-    cursors[CURSOR_LINE] = new QCursor(QPixmap("../img/cursors/line.png"));
-    cursors[CURSOR_ERASER] = new QCursor(QPixmap("../img/cursors/eraser.png"));
+    cursors[CURSOR_BASE] = new QCursor(QPixmap(":cursors/img/cursors/base.png"));
+    cursors[CURSOR_FREE] = new QCursor(QPixmap(":cursors/img/cursors/pencil.png"));
+    cursors[CURSOR_LINE] = new QCursor(QPixmap(":cursors/img/cursors/line.png"));
+    cursors[CURSOR_ERASER] = new QCursor(QPixmap(":cursors/img/cursors/eraser.png"));
     toolCursor = cursors[CURSOR_FREE];
     this->setCursor(*cursors[CURSOR_BASE]);
 

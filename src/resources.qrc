@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>img/icons/backward.png</file>
+        <file>img/icons/begin.png</file>
+        <file>img/icons/end.png</file>
+        <file>img/icons/eraser.png</file>
+        <file>img/icons/forward.png</file>
+        <file>img/icons/line.png</file>
+        <file>img/icons/movie.png</file>
+        <file>img/icons/pencil.png</file>
+        <file>img/icons/play.png</file>
+        <file>img/icons/rubberpointer.png</file>
+    </qresource>
+    <qresource prefix="/cursors">
+        <file>img/cursors/base.png</file>
+        <file>img/cursors/eraser.png</file>
+        <file>img/cursors/line.png</file>
+        <file>img/cursors/pencil.png</file>
+    </qresource>
+</RCC>

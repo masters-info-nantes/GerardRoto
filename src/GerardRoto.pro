@@ -16,3 +16,6 @@ SOURCES += \
     stackimage.cpp \
     imagewidget.cpp \
     newprojectdialog.cpp
+
+RESOURCES += \
+    resources.qrc
