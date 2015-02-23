@@ -473,7 +473,7 @@ void MainWindow::newProject(){
     NewProjectDialog* dialog = new NewProjectDialog();
 
     if(dialog->exec() == QDialog::Accepted){
-
+       //this->close();// TODO dialog before "yes, close" "no, don't close" "cancel"
        QFileInfo selectedFile(QFileInfo(dialog->getSelectedFile()));
 
        this->projectName = selectedFile.baseName();
@@ -510,7 +510,7 @@ void MainWindow::open(){
     }
 
     QFileInfo selectedFile(QFileInfo(this->projectFullPath));
-
+    //this->close();// TODO dialog before "yes, close" "no, don't close" "cancel"
     this->projectName = selectedFile.baseName();
     this->workingDir = new QTemporaryDir();
 
@@ -674,6 +674,8 @@ void MainWindow::exportDrawWithMovie(){
 }
 
 void MainWindow::close(){
+    if(!this->allDrawSaved)
+        this->save();// TODO dialog before "yes, save" "no, don't save" "cancel"
     delete this->workingDir;
     this->thumbnailsList->clear();
     // TODO clear this->drawzone
