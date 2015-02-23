@@ -362,7 +362,6 @@ void MainWindow::updateThumbnails(){
 // - loads next image and draw layer
 void MainWindow::changeCurrentImage(int index){
 
-    // TODO: bug resize draw zone
     int maxIndex(this->thumbnailsList->count() - 1);
     if(index < 0) index = 0;
     else if(index > maxIndex) index = maxIndex;
@@ -744,27 +743,38 @@ void MainWindow::onionPeelings(bool active){
         if(active)
         {
             int index = this->thumbnailsList->currentRow();
+
             bool backgroundDisplayedBefore(this->backgroundDisplayed);
-            if(backgroundDisplayedBefore)
+            if(backgroundDisplayedBefore){
                 this->displayBackgroundMovie(false);
+            }
+
             int min(index-this->peelingsCount);
-            if(min < 0)
+            if(min < 0){
                 min = 0;
+            }
+
             for(int i=index-1;i>=min;i--)
             {
                 QString imageName(((QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->item(i)))->toolTip());
                 QString drawImage(drawImageName(imageName)->constData());
-                if(QFile(drawImage).exists())
+
+                if(QFile(drawImage).exists()){
                     this->imageView->push(drawImage);
+                }
             }
-            if(backgroundDisplayedBefore)
+
+            if(backgroundDisplayedBefore){
                 this->displayBackgroundMovie(true);
+            }
         }
         else
         {
             this->imageView->removeMiddle();
-            if(!this->backgroundDisplayed)
+
+            if(!this->backgroundDisplayed){
                 this->imageView->removeBottom();
+            }
         }
         this->onionDisplayed = active;
     }
@@ -772,7 +782,11 @@ void MainWindow::onionPeelings(bool active){
 
 void MainWindow::peelingsNumber(){
     this->peelingsCount = QInputDialog::getInt(this, "Pelures d'oignons", "Nombre de pelures à afficher", this->peelingsCount, 0, 5);
-    // TODO change current display peeling
+
+    if(this->onionDisplayed){
+        this->onionPeelings(false);
+        this->onionPeelings(true);
+    }
 }
 
 void MainWindow::back(){

@@ -81,8 +81,14 @@ QList<QLayoutItem*>* StackImage::removeMiddle()
     this->layout()->removeItem(top);
     this->layout()->removeItem(bottom);
     QList<QLayoutItem*>* list(this->removeAll());
-    this->layout()->addItem(top);
-    this->layout()->addItem(bottom);
+    if(top != bottom && bottom != 0) {
+        this->layout()->addItem(top);
+        this->layout()->addItem(bottom);
+        m_stackSize = 2;
+    } else if(top == bottom && top != 0) {
+        this->layout()->addItem(top);
+        m_stackSize = 1;
+    }
     update();
     return list;
 }
