@@ -13,6 +13,7 @@ DrawZone::DrawZone(int width, int height, int penWidth, QColor penColor, QWidget
       m_redo(0)
 {
     m_pen.setWidth(penWidth);
+    m_pen.setCapStyle(Qt::RoundCap);
 }
 
 DrawZone::~DrawZone()
@@ -109,6 +110,15 @@ void DrawZone::mouseReleaseEvent(QMouseEvent *event)
     {
     case DrawZone::TOOL_PEN:
     case DrawZone::TOOL_RUBBER:
+        if(event->pos() == m_back_pos) {
+            QPainter painter(m_image);
+            if(m_tool == DrawZone::TOOL_RUBBER) {
+                painter.setCompositionMode(QPainter::CompositionMode_Clear);
+            }
+            painter.setPen(m_pen);
+            painter.drawPoint(event->pos());
+            update();
+        }
         m_draw = false;
         m_back_pos = QPoint(0,0);
         break;
