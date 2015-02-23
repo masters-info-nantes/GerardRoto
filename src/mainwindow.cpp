@@ -238,19 +238,19 @@ void MainWindow::createActions()
 
      // Goto menu
      this->backAction = new QAction(tr("&Image précédente"), this);
-     this->backAction->setShortcut(Qt::Key_Left);
+     this->backAction->setShortcut(Qt::CTRL+ Qt::Key_Left);
      connect(backAction, SIGNAL(triggered()), this, SLOT(back()));
 
      this->nextAction = new QAction(tr("&Image suivante"), this);
-     this->nextAction->setShortcut(Qt::Key_Right);
+     this->nextAction->setShortcut(Qt::CTRL + Qt::Key_Right);
      connect(nextAction, SIGNAL(triggered()), this, SLOT(next()));
 
      this->beginAction = new QAction(tr("&Début"), this);
-     this->beginAction->setShortcut(Qt::CTRL + Qt::Key_Left);
+     this->beginAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Left);
      connect(beginAction, SIGNAL(triggered()), this, SLOT(begin()));
 
      this->endAction = new QAction(tr("&Fin"), this);
-     this->endAction->setShortcut(Qt::CTRL + Qt::Key_Right);
+     this->endAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Right);
      connect(endAction, SIGNAL(triggered()), this, SLOT(end()));
 
      // Viewing menu
@@ -362,6 +362,7 @@ void MainWindow::updateThumbnails(){
 // - loads next image and draw layer
 void MainWindow::changeCurrentImage(int index){
 
+    // TODO: bug resize draw zone
     int maxIndex(this->thumbnailsList->count() - 1);
     if(index < 0) index = 0;
     else if(index > maxIndex) index = maxIndex;
@@ -771,6 +772,7 @@ void MainWindow::onionPeelings(bool active){
 
 void MainWindow::peelingsNumber(){
     this->peelingsCount = QInputDialog::getInt(this, "Pelures d'oignons", "Nombre de pelures à afficher", this->peelingsCount, 0, 5);
+    // TODO change current display peeling
 }
 
 void MainWindow::back(){
