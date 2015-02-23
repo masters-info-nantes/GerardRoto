@@ -84,9 +84,13 @@ void DrawZone::mouseMoveEvent(QMouseEvent *event)
     switch(m_tool)
     {
     case DrawZone::TOOL_PEN:
+    case DrawZone::TOOL_RUBBER:
         if(m_draw)
         {
             QPainter painter(m_image);
+            if(m_tool == DrawZone::TOOL_RUBBER) {
+                painter.setCompositionMode(QPainter::CompositionMode_Clear);
+            }
             painter.setPen(m_pen);
             painter.drawLine(m_back_pos,event->pos());
             m_back_pos = event->pos();
@@ -95,35 +99,6 @@ void DrawZone::mouseMoveEvent(QMouseEvent *event)
         break;
     case DrawZone::TOOL_LINE:
         //nothing
-        break;
-    case DrawZone::TOOL_RUBBER:
-        if(m_draw)
-        {
-            QImage alpha(m_image->alphaChannel());
-            int penHalfWidth(m_pen.width()/2);
-            int imageX(m_image->size().width());
-            int imageY(m_image->size().height());
-
-            int posX(event->pos().rx());
-            int posY(event->pos().ry());
-
-            int minX(posX-penHalfWidth);
-            int minY(posY-penHalfWidth);
-            int maxX(posX+penHalfWidth);
-            int maxY(posY+penHalfWidth);
-
-            for(int i=(minX < 0 ? 0 : minX);i<(maxX > imageX ? imageX : maxX);i++)
-            {
-                for(int j=(minY < 0 ? 0 : minY);j<(maxY > imageY ? imageY : maxY);j++)
-                {
-                    alpha.setPixel(i,j,0);
-                }
-            }
-
-            m_back_pos = event->pos();
-            m_image->setAlphaChannel(alpha);
-            update();
-        }
         break;
     }
 }
