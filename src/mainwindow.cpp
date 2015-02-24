@@ -615,23 +615,12 @@ void MainWindow::saveAs(){
 }
 
 void MainWindow::exportDraw(){
-    QString drawArchive(QFileDialog::getSaveFileName(this, tr("Export des dessins"),
-                                                    this->projectName + "-draws",
-                                                    tr("Files (*.tar)")));
+    QString drawTemplate(QFileDialog::getSaveFileName(this, tr("Export des dessins"),
+                                                    this->projectName + "-",
+                                                    ""));
 
     this->saveCurrentDraw();
-
-    if(!drawArchive.endsWith(".tar")){
-        drawArchive += ".tar";
-    }
-
-    QFile exportFile(drawArchive);
-    if(exportFile.exists()){
-        exportFile.remove();
-    }
-
-    QStringList args;
-    args << "-cvf" << drawArchive;
+    QFileInfo drawPath(drawTemplate);
 
     QDir dir(this->workingDir->path());
     QStringList files(dir.entryList());
@@ -639,14 +628,14 @@ void MainWindow::exportDraw(){
     for(int i = 0; i < files.length(); i++){
         QString file (files.at(i));
         if(file != "." && file != ".." && file.endsWith(".draw.png")){
-            args << file;
+            QFileInfo baseDrawName(file);
+
+            QFile::copy(
+                this->workingDir->path() + "/" + file,
+                drawPath.absolutePath() + "/" + drawPath.fileName() + baseDrawName.baseName().split("-").at(1) + ".png"
+            );
         }
     }
-
-    QProcess command;
-    command.setWorkingDirectory(this->workingDir->path());
-    command.start("tar", args);
-    command.waitForFinished();
 }
 
 void MainWindow::exportDrawWithMovie(){
