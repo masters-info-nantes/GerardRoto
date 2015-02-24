@@ -498,6 +498,7 @@ void MainWindow::newProject(){
 
        qDebug() << this->workingDir->path();
 
+       // Split movie with ffmpeg
        QStringList args;
        args << "-i" << dialog->getSelectedFile();
        args << "-r" << QString::number(dialog->getSelectedFPSCount());
@@ -515,6 +516,22 @@ void MainWindow::newProject(){
        command.start("ffmpeg", args);
        command.waitForFinished();
 
+       // Generate a draw for each image
+       QDir dir(this->workingDir->path());
+       QStringList files(dir.entryList());
+
+       for(int i = 0; i < files.length(); i++){
+           QString file (files.at(i));
+           if(file != "." && file != ".." && !file.endsWith(".draw.png")){
+               QFileInfo pictureName(file);
+
+               QImage* img = new QImage(this->drawzone->size(), QImage::Format_ARGB32);
+               img->save(this->workingDir->path() + "/" + pictureName.baseName() + ".draw.png");
+               delete img;
+           }
+       }
+
+       // End stuff
        this->setWindowTitle("* GerardRoto - " + this->projectName);
        this->allDrawSaved = false;
 
@@ -611,6 +628,7 @@ void MainWindow::saveAs(){
         return; // user canceled window
     }
 
+    // TODO: rename all draws and pictures with new project name...
     this->save();
 }
 
@@ -657,7 +675,7 @@ void MainWindow::exportDrawWithMovie(){
     QProcess command;
     command.setWorkingDirectory(this->workingDir->path());
     command.start("ffmpeg", args);
-    command.waitForFinished();
+    command.waitForFinished(1000*1000); // 1000sec, otherwise it cuts itself
 
     QMessageBox::information(this, "Export des dessins", "La vidéo a été générée à partir des dessins avec succès");
 }
