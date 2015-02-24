@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
       backgroundDisplayed(true),
       onionDisplayed(false),
       peelingsCount(DEFAULT_PEELINGS_COUNT),
+      projectFullPath(""),
       allDrawSaved(true)
 {
     // Create widgets
@@ -508,7 +509,9 @@ void MainWindow::newProject(){
        command.start("ffmpeg", args);
        command.waitForFinished();
 
-       this->setWindowTitle("GerardRoto - " + this->projectName);
+       this->setWindowTitle("* GerardRoto - " + this->projectName);
+       this->allDrawSaved = false;
+
        this->updateThumbnails();
        this->changeCurrentImage(0);
        this->setPerspective(false);
