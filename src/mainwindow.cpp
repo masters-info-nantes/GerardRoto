@@ -265,6 +265,7 @@ void MainWindow::createActions()
      connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
      connect(this->drawzone, SIGNAL(drawEvent()), this, SLOT(drawZoneNewDraw()));
+     connect(QApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(quit()));
 }
 
 void MainWindow::createMenus()
@@ -490,7 +491,7 @@ void MainWindow::newProject(){
        //QProcess::execute("ffmpeg", args);
        QProcess command;
        command.setWorkingDirectory(this->workingDir->path());
-       command.start("ffmpeg", args);
+       command.start("ffmpeg", args);// TODO detect ffmpeg or avconv installation
        command.waitForFinished();
 
        this->setWindowTitle("GerardRoto - " + this->projectName);
