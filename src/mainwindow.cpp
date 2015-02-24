@@ -642,58 +642,23 @@ void MainWindow::exportDrawWithMovie(){
     QString drawMovie(QFileDialog::getSaveFileName(this, tr("Export des dessins avec le film"),
                                                     this->projectName + "-drawmovie.mp4",
                                                     tr("Files (*.mp4)")));
-    QFileInfo drawMoviePath(drawMovie);
     this->saveCurrentDraw();
 
     if(!drawMovie.endsWith(".mp4")){
         drawMovie += ".mp4";
     }
 
-    QDir dir(this->workingDir->path());
-    QStringList files(dir.entryList());
-
-    QDir().mkdir(this->workingDir->path() + "/" + "export");
-    for(int i = 0; i < files.length(); i++){
-        QString file(files.at(i));
-
-        if(file != "." && file != ".." && !file.endsWith(".draw.png")){
-            QFileInfo movieFile(file);
-            QImage moviePic(this->workingDir->path() + "/" + movieFile.baseName() + ".jpeg");
-
-            QString drawName(this->workingDir->path() + "/" + movieFile.baseName() + ".draw.png");
-            QString multiName(this->workingDir->path() + "/export/" + movieFile.baseName() + ".multi.jpeg");
-
-            if(QFile(drawName).exists()){
-                QImage drawPic(drawName);
-                QImage result(moviePic.size() ,QImage::Format_RGB32);
-
-                QPainter painter;
-                painter.begin(&result);
-                painter.drawImage(0, 0, moviePic);
-                painter.drawImage(0, 0, drawPic);
-                painter.end();
-
-                result.save(multiName);
-            }
-            else {
-                moviePic.save(multiName);
-            }
-        }
-    }
-
     // Export
-    //ffmpeg -r 6 -i hd-%03d.jpeg out.mp4
     QStringList args;
     args << "-r" << QString::number(6);
-    args << "-i" << this->projectName + "-%03d.multi.jpeg";
+    args << "-i" << this->projectName + "-%03d.draw.png";
     args << drawMovie;
 
     QProcess command;
-    command.setWorkingDirectory(this->workingDir->path() + "/export");
+    command.setWorkingDirectory(this->workingDir->path());
     command.start("ffmpeg", args);
     command.waitForFinished();
 
-    QDir(this->workingDir->path() + "/export").removeRecursively();
     QMessageBox::information(this, "Export des dessins", "La vidéo a été générée à partir des dessins avec succès");
 }
 
