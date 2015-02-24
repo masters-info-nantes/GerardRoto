@@ -122,6 +122,7 @@ private:
      void saveCurrentDraw();
      void setPerspective(bool noProject);
      void notSavedIndication(bool display);
+     bool askForSaving();
 signals:
 
 private slots:
