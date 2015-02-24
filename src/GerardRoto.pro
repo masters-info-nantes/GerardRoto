@@ -6,7 +6,8 @@ HEADERS += \
     drawzone.h \
     stackimage.h \
     imagewidget.h \
-    newprojectdialog.h
+    newprojectdialog.h \
+    sequencewidget.h
 
 SOURCES += \
     mainwindow.cpp \
@@ -15,7 +16,8 @@ SOURCES += \
     drawzone.cpp \
     stackimage.cpp \
     imagewidget.cpp \
-    newprojectdialog.cpp
+    newprojectdialog.cpp \
+    sequencewidget.cpp
 
 RESOURCES += \
     resources.qrc

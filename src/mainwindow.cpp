@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "drawzone.h"
+#include <imagewidget.h>
 
 QString* drawImageName(QString s)
 {
@@ -12,12 +13,13 @@ QString* drawImageName(QString s)
 MainWindow::MainWindow(QWidget *parent)
     :QMainWindow(parent),
       perspective(false),
+      projectFullPath(""),
       currentIndex(-1),
       backgroundDisplayed(true),
       onionDisplayed(false),
       peelingsCount(DEFAULT_PEELINGS_COUNT),
-      projectFullPath(""),
-      allDrawSaved(true)
+      allDrawSaved(true),
+      previewWidget(new SequenceWidget())
 {
     // Create widgets
     this->imageView = new StackImage();
@@ -107,6 +109,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->buttonPlayDraws = new QPushButton();
     this->buttonPlayDraws->setIcon(QIcon(QPixmap(":icons/img/icons/play.png")));
+    connect(this->buttonPlayDraws, SIGNAL(clicked()), this, SLOT(playLastImages()));
 
     this->labelWithMovie = new QLabel();
     this->labelWithMovie->setPixmap(QPixmap(":icons/img/icons/movie.png").scaledToHeight(20));
@@ -114,6 +117,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->checkPlayWithMovie = new QCheckBox();
     this->buttonPlayFull = new QPushButton("Depuis le début");
     this->buttonPlayFull->setIcon(QIcon(QPixmap(":icons/img/icons/play.png")));
+    connect(this->buttonPlayFull, SIGNAL(clicked()), this, SLOT(playFromBeginningDispatcher()));
 
     controlsLayout->addWidget(this->buttonBegin);
     controlsLayout->addWidget(this->buttonBack);
@@ -162,6 +166,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(imageView, SIGNAL(mouseOver()), this, SLOT(mouseEnterDrawZone()));
     connect(imageView, SIGNAL(mouseOut()), this, SLOT(mouseLeaveDrawZone()));
 
+    connect(previewWidget, SIGNAL(sequenceEnd()), this, SLOT(endOfAnimation()));
 
     this->setCentralWidget(mainWidget);
     this->setWindowTitle(tr("GerardRoto"));
@@ -255,11 +260,14 @@ void MainWindow::createActions()
      connect(endAction, SIGNAL(triggered()), this, SLOT(end()));
 
      // Viewing menu
+     this->playLastImageAction = new QAction(tr("&Défillement des derniers dessins"), this);
+     connect(playLastImageAction, SIGNAL(triggered()), this, SLOT(playLastImages()));
+
      this->playFromBeginningAction = new QAction(tr("&Défillement dessins"), this);
-     connect(playFromBeginningAction, SIGNAL(triggered()), this, SLOT(playFromBeginning()));
+     connect(playFromBeginningAction, SIGNAL(triggered()), this, SLOT(playFromBeginningNoMovie()));
 
      this->playWithMovieAction = new QAction(tr("&Défillement dessins avec film"), this);
-     connect(playWithMovieAction, SIGNAL(triggered()), this, SLOT(playWithMovie()));
+     connect(playWithMovieAction, SIGNAL(triggered()), this, SLOT(playFromBeginningMovie()));
 
      // About menu
      this->aboutAction = new QAction(tr("&À Propos"), this);
@@ -318,6 +326,7 @@ void MainWindow::createMenus()
 
      // Viewing menu
      this->viewingMenu = menuBar()->addMenu(tr("&Visionnage"));
+     this->viewingMenu->addAction(playLastImageAction);
      this->viewingMenu->addAction(playFromBeginningAction);
      this->viewingMenu->addAction(playWithMovieAction);
 
@@ -427,7 +436,7 @@ void MainWindow::saveCurrentDraw(){
     QString drawName(pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png");
 
     this->drawzone->save(drawName, QPixmap(label->toolTip()).size());
-    qDebug() << drawName + " saved";
+    //qDebug() << drawName + " saved";//TODO remove this line
 }
 
 // Change perpective between no project opened and
@@ -502,7 +511,7 @@ void MainWindow::newProject(){
        // Split movie with ffmpeg
        QStringList args;
        args << "-i" << dialog->getSelectedFile();
-       args << "-r" << QString::number(dialog->getSelectedFPSCount());
+       args << "-r" << QString::number(dialog->getSelectedFPSCount());// TODO save fps + manage to insert inside project
        args << selectedFile.baseName() + "-%3d.jpeg";
 
        /*
@@ -827,12 +836,73 @@ void MainWindow::goFrame(){
     this->changeCurrentImage(this->frameNumber->text().toInt() - 1);
 }
 
-void MainWindow::playFromBeginning(){
-    // TODO MainWindow::playFromBeginning()
+void MainWindow::playImage(int start, bool movieImage)
+{
+    int fps = 6;
+    int sleeptime(1000/fps);
+    while(this->imageView->stackCount() > 0)
+    {
+        this->imageView->removeBottom();
+    }
+    this->imageView->push(this->previewWidget);
+    for(int i=(start>0?start:0);i<=this->currentIndex;i++)
+    {
+        QLabel* item((QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->item(i)));
+        QString* drawName = drawImageName(item->toolTip());
+        QImage* drawImg = new QImage(*drawName);
+        ImageWidget* imgW;
+        if(movieImage)
+        {
+            QImage* backImg = new QImage(item->toolTip());
+            imgW = new ImageWidget(backImg);
+            imgW->cover(drawImg);
+            delete backImg;
+        }
+        else
+        {
+            imgW = new ImageWidget(drawImg);
+        }
+        previewWidget->addWidget(imgW);
+        delete drawImg;
+        delete drawName;
+    }
+    this->previewWidget->setTime(sleeptime);
+    this->previewWidget->start();
 }
 
-void MainWindow::playWithMovie(){
-    // TODO MainWindow::playWithMovie()
+void MainWindow::playLastImages()
+{
+    playImage(this->currentIndex-this->numberPreviousFrames->value(),false);
+}
+
+void MainWindow::playFromBeginningDispatcher()
+{
+    if(this->checkPlayWithMovie->isChecked())
+    {
+        this->playFromBeginningMovie();
+    }
+    else
+    {
+        this->playFromBeginningNoMovie();
+    }
+}
+
+void MainWindow::playFromBeginningMovie()
+{
+    playImage(0,true);
+}
+
+void MainWindow::playFromBeginningNoMovie()
+{
+    playImage(0,false);
+}
+
+void MainWindow::endOfAnimation()
+{
+    this->imageView->removeBottom();
+    this->previewWidget->removeAll();
+    this->imageView->push(this->drawzone);
+    this->changeCurrentImage(this->currentIndex);
 }
 
 void MainWindow::about(){

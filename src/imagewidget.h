@@ -13,9 +13,10 @@ private:
 public:
     explicit ImageWidget(QImage* img, QWidget *parent = 0);
     ~ImageWidget();
+
+    void cover(QImage* img);
     void paintEvent(QPaintEvent*);
     void resizeEvent(QResizeEvent *event);
-
 signals:
 
 public slots:

@@ -21,6 +21,7 @@
 #include "stackimage.h"
 #include "newprojectdialog.h"
 #include "drawzone.h"
+#include "sequencewidget.h"
 #include <QColor>
 #include <QInputDialog>
 
@@ -61,6 +62,7 @@ private:
     QAction* beginAction;
     QAction* endAction;
     // Viewing
+    QAction* playLastImageAction;
     QAction* playFromBeginningAction;
     QAction* playWithMovieAction;
     QAction* aboutAction;
@@ -110,6 +112,7 @@ private:
     int peelingsCount;
 
     bool allDrawSaved;
+    SequenceWidget* previewWidget;
 public:
     explicit MainWindow(QWidget *parent = 0);
 
@@ -123,6 +126,7 @@ private:
      void setPerspective(bool noProject);
      void notSavedIndication(bool display);
      bool askForSaving();
+     void playImage(int start,bool movieImage);
 signals:
 
 private slots:
@@ -153,8 +157,11 @@ private slots:
     void end();
     void goFrame();
 
-    void playFromBeginning();
-    void playWithMovie();
+    void playLastImages();
+    void playFromBeginningDispatcher();
+    void playFromBeginningMovie();
+    void playFromBeginningNoMovie();
+    void endOfAnimation();
 
     void about();
 

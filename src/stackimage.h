@@ -20,6 +20,7 @@ public:
     QList<QLayoutItem*>* removeAll();
     QLayoutItem* removeBottom();
     QList<QLayoutItem*>* removeMiddle();
+    int stackCount();
 
     void enterEvent(QEvent*);
     void leaveEvent(QEvent*);

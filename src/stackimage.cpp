@@ -93,6 +93,11 @@ QList<QLayoutItem*>* StackImage::removeMiddle()
     return list;
 }
 
+int StackImage::stackCount()
+{
+    return this->m_stackSize;
+}
+
 void StackImage::enterEvent(QEvent*)
 {
     emit mouseOver();
