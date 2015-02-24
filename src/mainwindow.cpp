@@ -504,6 +504,12 @@ void MainWindow::newProject(){
        args << "-r" << QString::number(dialog->getSelectedFPSCount());
        args << selectedFile.baseName() + "-%3d.jpeg";
 
+       /*
+        * For osx systems, ffmpeg must be in /usr/bin
+        * - test with "which ffmpeg"
+        * - if not do a symbolic link:
+        *   ln -s /usr/local/bin/ffmpeg /usr/bin/ffmpeg
+        */
        //QProcess::execute("ffmpeg", args);
        QProcess command;
        command.setWorkingDirectory(this->workingDir->path());
