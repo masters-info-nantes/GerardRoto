@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
       backgroundDisplayed(true),
       onionDisplayed(false),
       peelingsCount(DEFAULT_PEELINGS_COUNT),
+      projectFullPath(""),
       allDrawSaved(true)
 {
     // Create widgets
@@ -379,9 +380,6 @@ void MainWindow::changeCurrentImage(int index){
     this->frameNumber->setText(QString::number(index + 1));
 
     QLabel* label((QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->item(index)));
-
-    //QFileInfo pictName(QFileInfo(label->toolTip()));
-    //QString drawName(pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png");
     QString drawName(drawImageName(label->toolTip())->constData());
 
     // Replace draw zone layer (empty if not exists)
@@ -429,7 +427,7 @@ void MainWindow::saveCurrentDraw(){
     QString drawName(pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png");
 
     this->drawzone->save(drawName, QPixmap(label->toolTip()).size());
-    //qDebug() << drawName + " saved";
+    qDebug() << drawName + " saved";
 }
 
 // Change perpective between no project opened and
@@ -469,12 +467,30 @@ void MainWindow::notSavedIndication(bool display)
     }
 }
 
+bool MainWindow::askForSaving(){
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, tr("QMessageBox::question()"),
+                                    "Sauvegarder le projet courant avant de le fermer ?",
+                                    QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+
+    switch(reply){
+        case QMessageBox::Yes:
+            return true;
+        default:
+            return false;
+    }
+}
+
 /************************** Menu slots ****************************/
 void MainWindow::newProject(){
     NewProjectDialog* dialog = new NewProjectDialog();
 
     if(dialog->exec() == QDialog::Accepted){
-       //this->close();// TODO dialog before "yes, close" "no, don't close" "cancel"
+
+       if(this->projectFullPath != ""){
+            this->close();
+       }
+
        QFileInfo selectedFile(QFileInfo(dialog->getSelectedFile()));
 
        this->projectName = selectedFile.baseName();
@@ -494,7 +510,9 @@ void MainWindow::newProject(){
        command.start("ffmpeg", args);// TODO detect ffmpeg or avconv installation
        command.waitForFinished();
 
-       this->setWindowTitle("GerardRoto - " + this->projectName);
+       this->setWindowTitle("* GerardRoto - " + this->projectName);
+       this->allDrawSaved = false;
+
        this->updateThumbnails();
        this->changeCurrentImage(0);
        this->setPerspective(false);
@@ -502,16 +520,20 @@ void MainWindow::newProject(){
 }
 
 void MainWindow::open(){
-    this->projectFullPath = QFileDialog::getOpenFileName(this, tr("Ouvrir un projet"),
+    QString projectFile = QFileDialog::getOpenFileName(this, tr("Ouvrir un projet"),
                                                      "",
                                                      tr("Files (*.gerard)"));
 
-    if(this->projectFullPath == NULL){
+    if(projectFile == NULL){
         return; // user canceled window
     }
+    else if(this->projectFullPath != ""){
+        this->close();
+    }
+
+    this->projectFullPath = projectFile;
 
     QFileInfo selectedFile(QFileInfo(this->projectFullPath));
-    //this->close();// TODO dialog before "yes, close" "no, don't close" "cancel"
     this->projectName = selectedFile.baseName();
     this->workingDir = new QTemporaryDir();
 
@@ -675,12 +697,19 @@ void MainWindow::exportDrawWithMovie(){
 }
 
 void MainWindow::close(){
-    if(!this->allDrawSaved)
-        this->save();// TODO dialog before "yes, save" "no, don't save" "cancel"
-    delete this->workingDir;
+    if(!this->allDrawSaved && this->askForSaving()){
+        this->save();
+    }
+    this->allDrawSaved = true; // anyway
+
+    // CAUTION: launches currentRowChanged twice on the same thumb....
     this->thumbnailsList->clear();
-    QImage* back = this->drawzone->clear();
-    delete back;
+
+    delete this->workingDir;
+    delete this->drawzone->clear();
+    this->imageView->removeAll();
+
+    this->currentIndex = -1;
     this->setWindowTitle("GerardRoto");
     this->setPerspective(true);
     this->mouseLeaveDrawZone();
