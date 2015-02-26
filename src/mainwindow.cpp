@@ -511,8 +511,8 @@ void MainWindow::newProject(){
        // Split movie with ffmpeg
        QStringList args;
        args << "-i" << dialog->getSelectedFile();
-       args << "-r" << QString::number(dialog->getSelectedFPSCount());// TODO save fps + manage to insert inside project
-       args << selectedFile.baseName() + "-%3d.jpeg";
+       args << "-r" << QString::number(dialog->getSelectedFPSCount());
+       args << "img-%3d.jpeg";
 
        /*
         * For osx systems, ffmpeg must be in /usr/bin
@@ -679,7 +679,7 @@ void MainWindow::exportDrawWithMovie(){
     // Export
     QStringList args;
     args << "-r" << QString::number(6);
-    args << "-i" << this->projectName + "-%03d.draw.png";
+    args << "-i" << "img-%03d.draw.png";
     args << drawMovie;
 
     QProcess command;
