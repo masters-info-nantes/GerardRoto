@@ -1,4 +1,5 @@
 #include "imagewidget.h"
+#include <QGraphicsOpacityEffect>
 
 ImageWidget::ImageWidget(QImage *img, QWidget *parent) :
     QWidget(parent),
@@ -13,6 +14,7 @@ ImageWidget::~ImageWidget()
     delete m_image;
 }
 
+
 void ImageWidget::cover(QImage* img)
 {
     QImage* tmp = new QImage(img->scaled(this->m_origin->size()));
@@ -22,6 +24,7 @@ void ImageWidget::cover(QImage* img)
     painter.drawImage(0,0,*tmp);
     delete tmp;
 }
+
 
 void ImageWidget::paintEvent(QPaintEvent*)
 {

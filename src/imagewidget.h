@@ -15,6 +15,7 @@ public:
     ~ImageWidget();
 
     void cover(QImage* img);
+
     void paintEvent(QPaintEvent*);
     void resizeEvent(QResizeEvent *event);
 signals:

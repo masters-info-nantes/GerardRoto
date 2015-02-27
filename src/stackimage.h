@@ -9,6 +9,7 @@ class StackImage : public QWidget
     Q_OBJECT
 private:
     int m_stackSize;
+    bool m_changeBottomOpacity;
 public:
     explicit StackImage(QWidget *parent = 0);
     ~StackImage();
@@ -21,10 +22,13 @@ public:
     QLayoutItem* removeBottom();
     QList<QLayoutItem*>* removeMiddle();
     int stackCount();
+    void changeBottomOpacity(bool active);
 
     void enterEvent(QEvent*);
     void leaveEvent(QEvent*);
     void resizeEvent(QResizeEvent *event);
+private:
+    void updateOpacity();
 signals:
     void mouseOver();
     void mouseOut();

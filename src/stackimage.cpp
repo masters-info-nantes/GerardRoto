@@ -1,5 +1,5 @@
 #include "stackimage.h"
-#include "drawzone.h"
+#include <QGraphicsOpacityEffect>
 #include "imagewidget.h"
 
 QWidget* makeImage(QString name)
@@ -12,7 +12,8 @@ QWidget* makeImage(QString name)
 
 StackImage::StackImage(QWidget *parent) :
     QWidget(parent),
-    m_stackSize(0)
+    m_stackSize(0),
+    m_changeBottomOpacity(true)
 {
     QStackedLayout* l = new QStackedLayout(this);
     l->setStackingMode(QStackedLayout::StackAll);
@@ -33,6 +34,7 @@ void StackImage::push(QWidget *img)
 {
     this->layout()->addWidget(img);
     m_stackSize++;
+    this->updateOpacity();
     update();
 }
 
@@ -68,6 +70,7 @@ QLayoutItem* StackImage::removeBottom()
         m_stackSize--;
         QLayoutItem* item(this->layout()->itemAt(m_stackSize));
         this->layout()->removeItem(item);
+        this->updateOpacity();
         update();
         return item;
     }
@@ -89,6 +92,7 @@ QList<QLayoutItem*>* StackImage::removeMiddle()
         this->layout()->addItem(top);
         m_stackSize = 1;
     }
+    this->updateOpacity();
     update();
     return list;
 }
@@ -96,6 +100,11 @@ QList<QLayoutItem*>* StackImage::removeMiddle()
 int StackImage::stackCount()
 {
     return this->m_stackSize;
+}
+
+void StackImage::changeBottomOpacity(bool active)
+{
+    this->m_changeBottomOpacity = active;
 }
 
 void StackImage::enterEvent(QEvent*)
@@ -114,5 +123,20 @@ void StackImage::resizeEvent(QResizeEvent *event)
     for(int i=0;i<m_stackSize;i++)
     {
         this->layout()->itemAt(i)->widget()->resize(newSize);
+    }
+}
+
+void StackImage::updateOpacity()
+{
+    int numberOfWidget = (this->m_changeBottomOpacity ? this->m_stackSize : this->m_stackSize-1);
+    qreal inc(((qreal)1)/((qreal)numberOfWidget));
+    qreal nextOpacity = inc;
+    QGraphicsOpacityEffect* effect;
+    for(int i=(numberOfWidget-1);i>0;i--)
+    {
+        effect = new QGraphicsOpacityEffect();
+        effect->setOpacity(nextOpacity);
+        this->layout()->itemAt(i)->widget()->setGraphicsEffect(effect);
+        nextOpacity += inc;
     }
 }

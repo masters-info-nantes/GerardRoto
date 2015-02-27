@@ -178,6 +178,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setMinimumSize(1050, 720);
     this->setPerspective(true);
     this->imageView->push(noProjectOpenedView);
+    this->imageView->changeBottomOpacity(false);
 }
 
 void MainWindow::createActions()
@@ -770,6 +771,7 @@ void MainWindow::displayBackgroundMovie(bool active){
             this->imageView->removeBottom();
         }
         this->backgroundDisplayed = active;
+        this->imageView->changeBottomOpacity(!this->backgroundDisplayed);// if background => don't change opacity of bottom, change otherwise
     }
 }
 
