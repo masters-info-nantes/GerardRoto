@@ -19,7 +19,8 @@ MainWindow::MainWindow(QWidget *parent)
       onionDisplayed(false),
       peelingsCount(DEFAULT_PEELINGS_COUNT),
       allDrawSaved(true),
-      previewWidget(new SequenceWidget())
+      previewWidget(new SequenceWidget()),
+      noProjectOpenedView(0)
 {
     // Create widgets
     this->imageView = new StackImage();
@@ -168,10 +169,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(previewWidget, SIGNAL(sequenceEnd()), this, SLOT(endOfAnimation()));
 
+    QImage* tmp = new QImage(QPixmap(":/img/no-project.png").toImage());
+    noProjectOpenedView = new ImageWidget(tmp);
+    delete tmp;
+
     this->setCentralWidget(mainWidget);
     this->setWindowTitle(tr("GerardRoto"));
     this->setMinimumSize(1050, 720);
     this->setPerspective(true);
+    this->imageView->push(noProjectOpenedView);
 }
 
 void MainWindow::createActions()
@@ -545,6 +551,8 @@ void MainWindow::newProject(){
        this->setWindowTitle("* GerardRoto - " + this->projectName);
        this->allDrawSaved = false;
 
+       this->imageView->removeBottom();
+
        this->updateThumbnails();
        this->changeCurrentImage(0);
        this->setPerspective(false);
@@ -578,6 +586,8 @@ void MainWindow::open(){
     command.setWorkingDirectory(this->workingDir->path());
     command.start("tar", args);
     command.waitForFinished();
+
+    this->imageView->removeBottom();
 
     this->setWindowTitle("GerardRoto - " + this->projectName);
     this->updateThumbnails();
@@ -702,6 +712,7 @@ void MainWindow::close(){
     delete this->workingDir;
     delete this->drawzone->clear();
     this->imageView->removeAll();
+    this->imageView->push(noProjectOpenedView);
 
     this->currentIndex = -1;
     this->setWindowTitle("GerardRoto");

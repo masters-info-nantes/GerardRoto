@@ -17,4 +17,7 @@
         <file>img/cursors/line.png</file>
         <file>img/cursors/pencil.png</file>
     </qresource>
+    <qresource prefix="/">
+        <file>img/no-project.png</file>
+    </qresource>
 </RCC>

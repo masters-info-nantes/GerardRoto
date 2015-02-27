@@ -22,6 +22,7 @@
 #include "newprojectdialog.h"
 #include "drawzone.h"
 #include "sequencewidget.h"
+#include "imagewidget.h"
 #include <QColor>
 #include <QInputDialog>
 
@@ -113,6 +114,8 @@ private:
 
     bool allDrawSaved;
     SequenceWidget* previewWidget;
+
+    ImageWidget* noProjectOpenedView;
 public:
     explicit MainWindow(QWidget *parent = 0);
 
