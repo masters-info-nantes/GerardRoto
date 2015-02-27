@@ -128,8 +128,9 @@ private:
      void saveCurrentDraw();
      void setPerspective(bool noProject);
      void notSavedIndication(bool display);
-     bool askForSaving();
+     //int askForSaving();
      void playImage(int start,bool movieImage);
+     bool beforeClose();
 signals:
 
 private slots:
@@ -139,8 +140,9 @@ private slots:
     void saveAs();
     void exportDraw();
     void exportDrawWithMovie();
-    void close();
+    void close(bool force = false);
     void quit();
+    void closeEvent(QCloseEvent *event);//QWidget
 
     void undo();
     void redo();

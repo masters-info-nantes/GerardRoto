@@ -281,7 +281,7 @@ void MainWindow::createActions()
      connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
      connect(this->drawzone, SIGNAL(drawEvent()), this, SLOT(drawZoneNewDraw()));
-     connect(QApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(quit()));
+     //connect(QApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(quit()));
 }
 
 void MainWindow::createMenus()
@@ -483,7 +483,7 @@ void MainWindow::notSavedIndication(bool display)
     }
 }
 
-bool MainWindow::askForSaving(){
+/*int MainWindow::askForSaving(){
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, tr("QMessageBox::question()"),
                                     "Sauvegarder le projet courant avant de le fermer ?",
@@ -492,9 +492,41 @@ bool MainWindow::askForSaving(){
     switch(reply){
         case QMessageBox::Yes:
             return true;
+        case QMessageBox::Cancel
         default:
             return false;
     }
+}*/
+
+bool MainWindow::beforeClose()
+{
+    if(!this->allDrawSaved)
+    {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, tr("QMessageBox::question()"),
+                                        "Sauvegarder le projet courant avant de le fermer ?",
+                                        QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+
+        bool canClose(false);
+        switch(reply){
+        case QMessageBox::Yes:
+            if(!this->allDrawSaved){
+                this->save();
+            }
+            canClose = true;
+            break;
+        case QMessageBox::No:
+            canClose = true;
+            break;
+        case QMessageBox::Cancel:
+            canClose = false;
+            break;
+        default:
+            canClose = false;
+        }
+        return canClose;
+    }
+    return true;
 }
 
 /************************** Menu slots ****************************/
@@ -504,7 +536,7 @@ void MainWindow::newProject(){
     if(dialog->exec() == QDialog::Accepted){
 
        if(this->projectFullPath != ""){
-            this->close();
+            this->beforeClose();
        }
 
        QFileInfo selectedFile(QFileInfo(dialog->getSelectedFile()));
@@ -569,7 +601,7 @@ void MainWindow::open(){
         return; // user canceled window
     }
     else if(this->projectFullPath != ""){
-        this->close();
+        this->beforeClose();
     }
 
     this->projectFullPath = projectFile;
@@ -590,6 +622,7 @@ void MainWindow::open(){
 
     this->imageView->removeBottom();
 
+    this->allDrawSaved = true;
     this->setWindowTitle("GerardRoto - " + this->projectName);
     this->updateThumbnails();
     this->changeCurrentImage(0);
@@ -701,13 +734,14 @@ void MainWindow::exportDrawWithMovie(){
     QMessageBox::information(this, "Export des dessins", "La vidéo a été générée à partir des dessins avec succès");
 }
 
-void MainWindow::close(){
-    if(!this->allDrawSaved && this->askForSaving()){
-        this->save();
+void MainWindow::close(bool force){
+    if(!force && (this->projectFullPath == "" || !beforeClose()))
+    {
+        return;
     }
-    this->allDrawSaved = true; // anyway
 
     // CAUTION: launches currentRowChanged twice on the same thumb....
+    this->projectFullPath = "";
     this->thumbnailsList->clear();
 
     delete this->workingDir;
@@ -722,8 +756,20 @@ void MainWindow::close(){
 }
 
 void MainWindow::quit(){
-    this->close();
-    QApplication::quit();
+    this->closeEvent(new QCloseEvent());
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+    if(this->projectFullPath == "" || this->beforeClose())
+    {
+        close(true);
+        event->accept();
+        QApplication::quit();
+    }
+    else
+    {
+        event->ignore();
+    }
 }
 
 void MainWindow::undo(){
