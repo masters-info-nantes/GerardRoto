@@ -893,11 +893,12 @@ void MainWindow::playImage(int start, bool movieImage)
 {
     int fps = 6;
     int sleeptime(1000/fps);
-    while(this->imageView->stackCount() > 0)
+    while(this->imageView->stackCount() > 1)
     {
         QWidget* imgW(this->imageView->removeBottom());
         delete imgW;
     }
+    this->imageView->removeBottom();//drawzone
     this->imageView->push(this->previewWidget);
     for(int i=(start>0?start:0);i<=this->currentIndex;i++)
     {
@@ -955,9 +956,11 @@ void MainWindow::endOfAnimation()
 {
     this->imageView->removeBottom();// same widget each time
     QVector<QWidget*>* prev(this->previewWidget->removeAll());// created by MainWindow::playImage()
-    qDeleteAll(prev->begin(), prev->end());
     prev->clear();
+    delete prev;
     this->imageView->push(this->drawzone);
+    QLabel* item((QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->item(this->currentIndex)));
+    this->imageView->push(item->toolTip());
     this->changeCurrentImage(this->currentIndex);
 }
 
