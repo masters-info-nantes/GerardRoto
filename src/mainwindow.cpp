@@ -378,26 +378,22 @@ void MainWindow::updateThumbnails(){
 // Change the current image
 // - saves draw layer
 // - loads next image and draw layer
-void MainWindow::changeCurrentImage(int index){
-
+void MainWindow::changeCurrentImage(int index)
+{
     int maxIndex(this->thumbnailsList->count() - 1);
     if(index < 0) index = 0;
     else if(index > maxIndex) index = maxIndex;
-
     // Save current draw layer
     // Caution: When the first picture is set (project load)
     // it erase the saved draw with the default draw layer
     if(this->currentIndex >= 0){
         this->saveCurrentDraw();
     }
-
     // Load next draw layer
     this->thumbnailsList->setCurrentRow(index);
     this->frameNumber->setText(QString::number(index + 1));
-
     QLabel* label((QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->item(index)));
     QString drawName(drawImageName(label->toolTip())->constData());
-
     // Replace draw zone layer (empty if not exists)
     QFile nextDrawFile(drawName);
     QImage *back, *img;
@@ -416,7 +412,6 @@ void MainWindow::changeCurrentImage(int index){
         QWidget* previousBackground(this->imageView->removeBottom());// widget containing background image
         delete previousBackground;
     }
-
     QList<QWidget*>* prev(this->imageView->removeAll());
     if(prev->size() > 1)
     {
@@ -424,11 +419,9 @@ void MainWindow::changeCurrentImage(int index){
     }
     delete prev;
     this->imageView->push(this->drawzone);
-
     if(this->backgroundDisplayed){
         this->imageView->push(label->toolTip());
     }
-
     if(this->onionDisplayed)
     {
         this->onionDisplayed = false;
@@ -452,7 +445,7 @@ void MainWindow::saveCurrentDraw(){
 
 // Change perpective between no project opened and
 // project openend
-void MainWindow::setPerspective(bool noProject){
+void MainWindow::setPerspective(bool noProject) {
     if(this->perspective != noProject)
     {
         this->perspective = noProject;
@@ -524,8 +517,8 @@ void MainWindow::newProject(){
 
     if(dialog->exec() == QDialog::Accepted){
 
-       if(this->projectFullPath != ""){
-            this->beforeClose();
+       if(!this->perspective && this->beforeClose()){
+           this->close(true);
        }
 
        QFileInfo selectedFile(QFileInfo(dialog->getSelectedFile()));
@@ -562,20 +555,37 @@ void MainWindow::newProject(){
                QFileInfo pictureName(file);
 
                QImage* img = new QImage(this->drawzone->size(), QImage::Format_ARGB32);
+               QPainter painter(img);
+               painter.setCompositionMode(QPainter::CompositionMode_Clear);
+               painter.setPen(QPen());
+               painter.fillRect(img->rect(),Qt::SolidPattern);
                img->save(this->workingDir->path() + "/" + pictureName.baseName() + ".draw.png");
-               delete img;
+               if(painter.end())
+               {
+                   delete img;
+               }
            }
        }
 
        // End stuff
        this->setWindowTitle("* GerardRoto - " + this->projectName);
        this->allDrawSaved = false;
-
-       this->imageView->removeBottom();// no project indication (only one)
-
+       if(this->perspective)// no project opened
+       {
+           this->imageView->removeBottom();// no project indication (only one)
+       }
+       else
+       {
+           QList<QWidget*>* prev(this->imageView->removeAll());
+           if(prev->size() > 1)
+           {
+                qDeleteAll(++(prev->begin()),prev->end());
+           }
+           delete prev;
+       }
+       this->setPerspective(false);
        this->updateThumbnails();
        this->changeCurrentImage(0);
-       this->setPerspective(false);
     }
 }
 
@@ -587,8 +597,8 @@ void MainWindow::open(){
     if(projectFile == NULL){
         return; // user canceled window
     }
-    else if(this->projectFullPath != ""){
-        this->beforeClose();
+    else if(!this->perspective && this->beforeClose()){
+        this->close(true);
     }
 
     this->projectFullPath = projectFile;
@@ -616,7 +626,6 @@ void MainWindow::open(){
 }
 
 void MainWindow::save(){
-
     if(this->projectFullPath == ""){
         this->saveAs();
         return;
@@ -717,11 +726,10 @@ void MainWindow::exportDrawWithMovie(){
 }
 
 void MainWindow::close(bool force){
-    if(!force && (this->projectFullPath == "" || !beforeClose()))
+    if(!force && (this->perspective || !beforeClose()))
     {
         return;
     }
-
     // CAUTION: launches currentRowChanged twice on the same thumb....
     this->projectFullPath = "";
     this->thumbnailsList->clear();
@@ -744,7 +752,7 @@ void MainWindow::quit(){
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-    if(this->projectFullPath == "" || this->beforeClose())
+    if(this->perspective || this->beforeClose())
     {
         close(true);
         event->accept();
