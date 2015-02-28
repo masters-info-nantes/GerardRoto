@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->numberBrushSize = new QSpinBox();
     connect(this->numberBrushSize, SIGNAL(valueChanged(int)), this, SLOT(changePenWidth(int)));
     this->numberBrushSize->setValue(8);
+    this->numberBrushSize->setMaximum(999);
 
     this->pickerBrushColor = new ColorPicker();
     connect(this->pickerBrushColor, SIGNAL(colorChanged(QColor)), this, SLOT(changePenColor(QColor)));
@@ -859,7 +860,7 @@ void MainWindow::onionPeelings(bool active){
 }
 
 void MainWindow::peelingsNumber(){
-    this->peelingsCount = QInputDialog::getInt(this, "Pelures d'oignons", "Nombre de pelures à afficher", this->peelingsCount, 0, 5);
+    this->peelingsCount = QInputDialog::getInt(this, "Pelures d'oignons", "Nombre de pelures à afficher", this->peelingsCount, 0, 12);
 
     if(this->onionDisplayed){
         this->onionPeelings(false);
