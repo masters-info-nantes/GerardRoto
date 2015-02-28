@@ -18,9 +18,9 @@ public:
     void push(QWidget* img);
     void push(QLayoutItem* img);
     void push(QString imgName);
-    QList<QLayoutItem*>* removeAll();
-    QLayoutItem* removeBottom();
-    QList<QLayoutItem*>* removeMiddle();
+    QList<QWidget *> *removeAll();
+    QWidget* removeBottom();
+    QList<QWidget*>* removeMiddle();
     int stackCount();
     void changeBottomOpacity(bool active);
 

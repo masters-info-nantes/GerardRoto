@@ -128,7 +128,6 @@ private:
      void saveCurrentDraw();
      void setPerspective(bool noProject);
      void notSavedIndication(bool display);
-     //int askForSaving();
      void playImage(int start,bool movieImage);
      bool beforeClose();
 signals:

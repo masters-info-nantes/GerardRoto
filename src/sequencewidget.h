@@ -10,7 +10,7 @@ class SequenceWidget : public QWidget
     Q_OBJECT
 private:
     int m_time;
-    QVector<QWidget*> m_list;
+    QVector<QWidget*>* m_list;
     QTimer* m_timer;
     int m_currentImage;
 public:
@@ -18,8 +18,8 @@ public:
     ~SequenceWidget();
 
     void addWidget(QWidget* w);
-    void removeLast();
-    void removeAll();
+    QWidget *removeLast();
+    QVector<QWidget*>* removeAll();
 
     void setTime(int millis);
     void start();

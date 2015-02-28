@@ -401,7 +401,8 @@ void MainWindow::changeCurrentImage(int index){
     // Replace draw zone layer (empty if not exists)
     QFile nextDrawFile(drawName);
     QImage *back, *img;
-    if(nextDrawFile.exists()){
+    if(nextDrawFile.exists())
+    {
         img = new QImage(drawName);
         back = this->drawzone->replaceLayer(img);
     }
@@ -410,14 +411,18 @@ void MainWindow::changeCurrentImage(int index){
         img = new QImage(this->drawzone->size(), QImage::Format_ARGB32);
         back = this->drawzone->replaceLayer(img);
     }
-
     if(this->backgroundDisplayed)
     {
-        QLayoutItem* previousBackground(this->imageView->removeBottom());
+        QWidget* previousBackground(this->imageView->removeBottom());// widget containing background image
         delete previousBackground;
     }
 
-    this->imageView->removeAll();
+    QList<QWidget*>* prev(this->imageView->removeAll());
+    if(prev->size() > 1)
+    {
+        qDeleteAll(++(prev->begin()), prev->end());
+    }
+    delete prev;
     this->imageView->push(this->drawzone);
 
     if(this->backgroundDisplayed){
@@ -443,7 +448,6 @@ void MainWindow::saveCurrentDraw(){
     QString drawName(pictName.absolutePath() + "/" + pictName.completeBaseName() + ".draw" + ".png");
 
     this->drawzone->save(drawName, QPixmap(label->toolTip()).size());
-    //qDebug() << drawName + " saved";//TODO remove this line
 }
 
 // Change perpective between no project opened and
@@ -482,21 +486,6 @@ void MainWindow::notSavedIndication(bool display)
         this->setWindowTitle(currentTitle.right(currentTitle.size()-2));
     }
 }
-
-/*int MainWindow::askForSaving(){
-    QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, tr("QMessageBox::question()"),
-                                    "Sauvegarder le projet courant avant de le fermer ?",
-                                    QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-
-    switch(reply){
-        case QMessageBox::Yes:
-            return true;
-        case QMessageBox::Cancel
-        default:
-            return false;
-    }
-}*/
 
 bool MainWindow::beforeClose()
 {
@@ -545,8 +534,6 @@ void MainWindow::newProject(){
        this->workingDir = new QTemporaryDir();
        this->projectFullPath = "";
 
-       qDebug() << this->workingDir->path();
-
        // Split movie with ffmpeg
        QStringList args;
        args << "-i" << dialog->getSelectedFile();
@@ -584,7 +571,7 @@ void MainWindow::newProject(){
        this->setWindowTitle("* GerardRoto - " + this->projectName);
        this->allDrawSaved = false;
 
-       this->imageView->removeBottom();
+       this->imageView->removeBottom();// no project indication (only one)
 
        this->updateThumbnails();
        this->changeCurrentImage(0);
@@ -610,7 +597,6 @@ void MainWindow::open(){
     this->projectName = selectedFile.baseName();
     this->workingDir = new QTemporaryDir();
 
-    qDebug() << this->workingDir->path();
     QStringList args;
     args << "-xvf" << this->projectFullPath;
     args << "-C" << this->workingDir->path();
@@ -620,7 +606,7 @@ void MainWindow::open(){
     command.start("tar", args);
     command.waitForFinished();
 
-    this->imageView->removeBottom();
+    this->imageView->removeBottom();// no project open
 
     this->allDrawSaved = true;
     this->setWindowTitle("GerardRoto - " + this->projectName);
@@ -670,19 +656,15 @@ void MainWindow::save(){
         this->allDrawSaved = true;
         this->notSavedIndication(false);
     }
-
 }
 
 void MainWindow::saveAs(){
     this->projectFullPath = QFileDialog::getSaveFileName(this, tr("Enregistrer le projet"),
                                                     this->projectName,
                                                     tr("Files (*.gerard)"));
-
     if(this->projectFullPath == NULL){
         return; // user canceled window
     }
-
-    // TODO: rename all draws and pictures with new project name...
     this->save();
 }
 
@@ -746,7 +728,9 @@ void MainWindow::close(bool force){
 
     delete this->workingDir;
     delete this->drawzone->clear();
-    this->imageView->removeAll();
+    QList<QWidget*>* prev(this->imageView->removeAll());
+    qDeleteAll(++(prev->begin()), prev->end());
+    delete prev;
     this->imageView->push(noProjectOpenedView);
 
     this->currentIndex = -1;
@@ -814,7 +798,8 @@ void MainWindow::displayBackgroundMovie(bool active){
         }
         else
         {
-            this->imageView->removeBottom();
+            QWidget* prev(this->imageView->removeBottom());// widget containing background
+            delete prev;
         }
         this->backgroundDisplayed = active;
         this->imageView->changeBottomOpacity(!this->backgroundDisplayed);// if background => don't change opacity of bottom, change otherwise
@@ -851,16 +836,17 @@ void MainWindow::onionPeelings(bool active){
             if(backgroundDisplayedBefore){
                 this->displayBackgroundMovie(true);
             }
+            this->onionDisplayed = true;
         }
         else
         {
-            this->imageView->removeMiddle();
-
-            if(!this->backgroundDisplayed){
-                this->imageView->removeBottom();
-            }
+            QList<QWidget*>* prev(this->imageView->removeAll());
+            qDeleteAll(++(prev->begin()), prev->end());
+            delete prev;
+            this->onionDisplayed = false;
+            int row = this->thumbnailsList->currentRow();
+            this->changeCurrentImage(row);
         }
-        this->onionDisplayed = active;
     }
 }
 
@@ -901,7 +887,8 @@ void MainWindow::playImage(int start, bool movieImage)
     int sleeptime(1000/fps);
     while(this->imageView->stackCount() > 0)
     {
-        this->imageView->removeBottom();
+        QWidget* imgW(this->imageView->removeBottom());
+        delete imgW;
     }
     this->imageView->push(this->previewWidget);
     for(int i=(start>0?start:0);i<=this->currentIndex;i++)
@@ -958,8 +945,10 @@ void MainWindow::playFromBeginningNoMovie()
 
 void MainWindow::endOfAnimation()
 {
-    this->imageView->removeBottom();
-    this->previewWidget->removeAll();
+    this->imageView->removeBottom();// same widget each time
+    QVector<QWidget*>* prev(this->previewWidget->removeAll());// created by MainWindow::playImage()
+    qDeleteAll(prev->begin(), prev->end());
+    prev->clear();
     this->imageView->push(this->drawzone);
     this->changeCurrentImage(this->currentIndex);
 }

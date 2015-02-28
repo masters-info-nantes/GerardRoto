@@ -48,22 +48,23 @@ void StackImage::push(QString imgName)
     this->push(makeImage(imgName));
 }
 
-QList<QLayoutItem*>* StackImage::removeAll()
+QList<QWidget*>* StackImage::removeAll()
 {
-    QList<QLayoutItem*>* list(new QList<QLayoutItem*>());
+    QList<QWidget*>* list(new QList<QWidget*>());
     QLayoutItem* item;
     while(!this->layout()->isEmpty())
     {
         item = this->layout()->itemAt(0);
         this->layout()->removeItem(item);
-        list->append(item);
+        list->append(item->widget());
+        delete item;
     }
     m_stackSize = 0;
     update();
     return list;
 }
 
-QLayoutItem* StackImage::removeBottom()
+QWidget *StackImage::removeBottom()
 {
     if(!this->layout()->isEmpty())
     {
@@ -72,18 +73,20 @@ QLayoutItem* StackImage::removeBottom()
         this->layout()->removeItem(item);
         this->updateOpacity();
         update();
-        return item;
+        QWidget* itemW(item->widget());
+        delete item;
+        return itemW;
     }
     return 0;
 }
 
-QList<QLayoutItem*>* StackImage::removeMiddle()
+QList<QWidget*>* StackImage::removeMiddle()
 {
     QLayoutItem* top(this->layout()->itemAt(0));
     QLayoutItem* bottom(this->layout()->itemAt(m_stackSize-1));
     this->layout()->removeItem(top);
     this->layout()->removeItem(bottom);
-    QList<QLayoutItem*>* list(this->removeAll());
+    QList<QWidget*>* list(this->removeAll());
     if(top != bottom && bottom != 0) {
         this->layout()->addItem(top);
         this->layout()->addItem(bottom);
