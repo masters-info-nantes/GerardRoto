@@ -240,11 +240,13 @@ void MainWindow::createActions()
      this->displayBackgroundMovieAction = new QAction(tr("&Film en fond"), this);
      this->displayBackgroundMovieAction->setCheckable(true);
      this->displayBackgroundMovieAction->setChecked(true);
+     this->displayBackgroundMovieAction->setShortcut(Qt::CTRL + Qt::Key_H);
      connect(displayBackgroundMovieAction, SIGNAL(toggled(bool)), this, SLOT(displayBackgroundMovie(bool)));
 
      this->onionPeelingsAction = new QAction(tr("&Pelures d'oignon"), this);
      this->onionPeelingsAction->setCheckable(true);
      this->onionPeelingsAction->setChecked(false);
+     this->onionPeelingsAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_H);
      connect(onionPeelingsAction, SIGNAL(toggled(bool)), this, SLOT(onionPeelings(bool)));
 
      this->peelingsNumberAction = new QAction(tr("&Nombre de pelures..."), this);
@@ -797,8 +799,10 @@ void MainWindow::changePenColor(QColor color){
 }
 
 void MainWindow::displayBackgroundMovie(bool active){
-    if(this->backgroundDisplayed != active)
+    if(!this->perspective && this->backgroundDisplayed != active)
     {
+        this->backgroundDisplayed = active;
+        this->imageView->changeBottomOpacity(!this->backgroundDisplayed);// if background => don't change opacity of bottom, change otherwise
         if(active)
         {
             int index = this->thumbnailsList->currentRow();
@@ -810,13 +814,11 @@ void MainWindow::displayBackgroundMovie(bool active){
             QWidget* prev(this->imageView->removeBottom());// widget containing background
             delete prev;
         }
-        this->backgroundDisplayed = active;
-        this->imageView->changeBottomOpacity(!this->backgroundDisplayed);// if background => don't change opacity of bottom, change otherwise
     }
 }
 
 void MainWindow::onionPeelings(bool active){
-    if(this->onionDisplayed != active)
+    if(!this->perspective && this->onionDisplayed != active)
     {
         if(active)
         {
