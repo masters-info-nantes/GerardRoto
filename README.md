@@ -1,6 +1,8 @@
 # Gerard - Roto
 Qt application to make rotoscoping from videos
 
+![Interface du logiciel](http://img15.hostingpics.net/pics/497593Capturedcran20150228194031.png)
+
 ## Requirements
 * tar
 * ffmpeg
