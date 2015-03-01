@@ -143,7 +143,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this->buttonPlayFull, SIGNAL(clicked()), this, SLOT(playFromBeginningDispatcher()));
 
     controlsLayout->addWidget(this->buttonBegin, 0, 0, 1, 1, Qt::AlignLeft);
-    controlsLayout->addWidget(this->buttonBack, 0, 0, 1, 1, Qt::AlignLeft);
+    controlsLayout->addWidget(this->buttonBack, 0, 1, 1, 1, Qt::AlignLeft);
 
     controlsCenterLayout->addStretch(1);
     controlsCenterLayout->addWidget(new QLabel(tr("Image courante: ")));
@@ -161,9 +161,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     controlsCenterLayout->addStretch(1);
     controlsLayout->addWidget(this->buttonNext, 0, 3, 1, 1, Qt::AlignRight);
-    controlsLayout->addWidget(this->buttonEnd, 0, 3, 1, 1, Qt::AlignRight);
+    controlsLayout->addWidget(this->buttonEnd, 0, 4, 1, 1, Qt::AlignRight);
 
-    controlsLayout->addLayout(controlsCenterLayout, 0, 1, 1, 1, Qt::AlignCenter);
+    controlsLayout->addLayout(controlsCenterLayout, 0, 2, 1, 1, Qt::AlignCenter);
     controlsBar->setLayout(controlsLayout);
 
     // Set widgets in layouts
