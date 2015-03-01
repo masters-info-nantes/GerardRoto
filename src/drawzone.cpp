@@ -172,11 +172,17 @@ void DrawZone::resizeEvent(QResizeEvent *event)
 
 void DrawZone::newdo()
 {
-    if(m_undo != 0)
-        delete m_undo;
-    m_undo = new QImage(*m_image);
     if(m_redo != 0)
+    {
         delete m_redo;
+        m_redo = 0;
+    }
+    if(m_undo != 0)
+    {
+        delete m_undo;
+        m_undo = 0;
+    }
+    m_undo = new QImage(*m_image);
     emit drawEvent();
 }
 
@@ -184,6 +190,11 @@ bool DrawZone::undo()
 {
     if(m_undo != 0)
     {
+        if(m_redo != 0)
+        {
+            delete m_redo;
+            m_redo = 0;
+        }
         m_redo = m_image;
         m_image = m_undo;
         m_undo = 0;
@@ -197,6 +208,11 @@ bool DrawZone::redo()
 {
     if(m_redo != 0)
     {
+        if(m_undo != 0)
+        {
+            delete m_undo;
+            m_undo = 0;
+        }
         m_undo = m_image;
         m_image = m_redo;
         m_redo = 0;
