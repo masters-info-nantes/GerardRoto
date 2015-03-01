@@ -240,6 +240,7 @@ QImage* DrawZone::replaceLayer(QImage* img)
         delete m_redo;
         m_redo = 0;
     }
+    m_back_pos = QPoint(0,0);
     update();
     return tmp;
 }
