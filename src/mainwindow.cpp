@@ -43,13 +43,13 @@ MainWindow::MainWindow(QWidget *parent)
     this->buttonFreeDraw->setChecked(true);
 
     this->buttonLineDraw = new QPushButton();
-    this->buttonLineDraw->setToolTip("Tracé en lignes");
+    this->buttonLineDraw->setToolTip(tr("Tracé en lignes"));
     connect(this->buttonLineDraw, SIGNAL(clicked()), this, SLOT(lineDraw()));
     this->buttonLineDraw->setIcon(QIcon(QPixmap(":icons/img/icons/line.png")));
     this->buttonLineDraw->setCheckable(true);
 
     this->buttonEraser = new QPushButton();
-    this->buttonEraser->setToolTip("Gomme");
+    this->buttonEraser->setToolTip(tr("Gomme"));
     connect(this->buttonEraser, SIGNAL(clicked()), this, SLOT(eraser()));
     this->buttonEraser->setIcon(QIcon(QPixmap(":icons/img/icons/eraser.png")));
     this->buttonEraser->setCheckable(true);
@@ -61,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
     drawButtonGroup->setExclusive(true);
 
     this->numberBrushSize = new QSpinBox();
-    this->numberBrushSize->setToolTip("Taille du pinceau");
+    this->numberBrushSize->setToolTip(tr("Taille du pinceau"));
     connect(this->numberBrushSize, SIGNAL(valueChanged(int)), this, SLOT(changePenWidth(int)));
     this->numberBrushSize->setValue(8);
     this->numberBrushSize->setMaximum(999);
@@ -89,27 +89,33 @@ MainWindow::MainWindow(QWidget *parent)
     this->drawBar->setLayout(drawLayout);
 
     this->controlsBar = new QWidget();
-    this->controlsBar->setMaximumSize(1000, 50);
+    //this->controlsBar->setMinimumSize(1000, 50);
 
-    QHBoxLayout* controlsLayout(new QHBoxLayout());
+    QGridLayout* controlsLayout(new QGridLayout());
+    QHBoxLayout* controlsCenterLayout(new QHBoxLayout());
+
     this->buttonBegin = new QPushButton();
+    this->buttonBegin->setToolTip(tr("Afficher la première image"));
     this->buttonBegin->setIcon(QIcon(QPixmap(":icons/img/icons/begin.png")));
     connect(this->buttonBegin, SIGNAL(clicked()), this, SLOT(begin()));
 
     this->buttonEnd = new QPushButton();
+    this->buttonEnd->setToolTip(tr("Afficher la dernière image"));
     this->buttonEnd->setIcon(QIcon(QPixmap(":icons/img/icons/end.png")));
     connect(this->buttonEnd, SIGNAL(clicked()), this, SLOT(end()));
 
     this->buttonBack = new QPushButton();
+    this->buttonBack->setToolTip(tr("Afficher l'image précédente"));
     this->buttonBack->setIcon(QIcon(QPixmap(":icons/img/icons/backward.png")));
     connect(this->buttonBack, SIGNAL(clicked()), this, SLOT(back()));
 
     this->buttonNext = new QPushButton();
+    this->buttonNext->setToolTip(tr("Afficher l'image suivante"));
     this->buttonNext->setIcon(QIcon(QPixmap(":icons/img/icons/forward.png")));
     connect(this->buttonNext, SIGNAL(clicked()), this, SLOT(next()));
 
     this->frameNumber = new QLineEdit();
-    this->frameNumber->setToolTip("Appuyez sur entrer pour aller à l'image indiquée");
+    this->frameNumber->setToolTip(tr("Appuyez sur entrer pour aller à l'image indiquée"));
     QSize frameNumberSz(this->frameNumber->sizeHint());
     frameNumberSz.setWidth(50);
     this->frameNumber->setMaximumSize(frameNumberSz);
@@ -118,45 +124,46 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this->buttonGoFrame, SIGNAL(clicked()), this, SLOT(goFrame()));
 
     this->numberPreviousFrames = new QSpinBox();
-    this->numberPreviousFrames->setToolTip("n derniers dessins pour le défilement");
+    this->numberPreviousFrames->setToolTip(tr("n derniers dessins pour le défilement"));
 
     this->buttonPlayDraws = new QPushButton();
     this->buttonPlayDraws->setIcon(QIcon(QPixmap(":icons/img/icons/play.png")));
-    this->buttonPlayDraws->setToolTip("Jouer les n derniers dessins");
+    this->buttonPlayDraws->setToolTip(tr("Jouer les n derniers dessins"));
     connect(this->buttonPlayDraws, SIGNAL(clicked()), this, SLOT(playLastImages()));
 
     this->labelWithMovie = new QLabel();
     this->labelWithMovie->setPixmap(QPixmap(":icons/img/icons/movie.png").scaledToHeight(20));
-    this->labelWithMovie->setToolTip("Afficher le film lors du défillement");
+    this->labelWithMovie->setToolTip(tr("Afficher le film lors du défillement"));
 
     this->checkPlayWithMovie = new QCheckBox();
-    this->checkPlayWithMovie->setToolTip("Afficher le film lors du défillement");
+    this->checkPlayWithMovie->setToolTip(tr("Afficher le film lors du défillement"));
     this->buttonPlayFull = new QPushButton("Depuis le début");
     this->buttonPlayFull->setIcon(QIcon(QPixmap(":icons/img/icons/play.png")));
-    this->buttonPlayFull->setToolTip("Défiller du début jusqu'à l'image courante");
+    this->buttonPlayFull->setToolTip(tr("Défiller du début jusqu'à l'image courante"));
     connect(this->buttonPlayFull, SIGNAL(clicked()), this, SLOT(playFromBeginningDispatcher()));
 
-    controlsLayout->addWidget(this->buttonBegin);
-    controlsLayout->addWidget(this->buttonBack);
+    controlsLayout->addWidget(this->buttonBegin, 0, 0, 1, 1, Qt::AlignLeft);
+    controlsLayout->addWidget(this->buttonBack, 0, 0, 1, 1, Qt::AlignLeft);
 
-    controlsLayout->addSpacerItem(new QSpacerItem(10,10, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
-    controlsLayout->addWidget(new QLabel("Image courante: "));
-    controlsLayout->addWidget(this->frameNumber);
+    controlsCenterLayout->addStretch(1);
+    controlsCenterLayout->addWidget(new QLabel(tr("Image courante: ")));
+    controlsCenterLayout->addWidget(this->frameNumber);
     //controlsLayout->addWidget(this->buttonGoFrame);
 
-    controlsLayout->addSpacerItem(new QSpacerItem(30,10, QSizePolicy::Minimum, QSizePolicy::Minimum));
-    controlsLayout->addWidget(this->numberPreviousFrames);
-    controlsLayout->addWidget(this->buttonPlayDraws);
+    controlsCenterLayout->addStretch(1);
+    controlsCenterLayout->addWidget(this->numberPreviousFrames);
+    controlsCenterLayout->addWidget(this->buttonPlayDraws);
 
-    controlsLayout->addSpacerItem(new QSpacerItem(20,10, QSizePolicy::Minimum, QSizePolicy::Minimum));
-    controlsLayout->addWidget(this->labelWithMovie);
-    controlsLayout->addWidget(this->checkPlayWithMovie);
-    controlsLayout->addWidget(this->buttonPlayFull);
+    controlsCenterLayout->addStretch(1);
+    controlsCenterLayout->addWidget(this->labelWithMovie);
+    controlsCenterLayout->addWidget(this->checkPlayWithMovie);
+    controlsCenterLayout->addWidget(this->buttonPlayFull);
 
-    controlsLayout->addSpacerItem(new QSpacerItem(20,10, QSizePolicy::Minimum, QSizePolicy::Minimum));
-    controlsLayout->addWidget(this->buttonNext);
-    controlsLayout->addWidget(this->buttonEnd);
+    controlsCenterLayout->addStretch(1);
+    controlsLayout->addWidget(this->buttonNext, 0, 3, 1, 1, Qt::AlignRight);
+    controlsLayout->addWidget(this->buttonEnd, 0, 3, 1, 1, Qt::AlignRight);
 
+    controlsLayout->addLayout(controlsCenterLayout, 0, 1, 1, 1, Qt::AlignCenter);
     controlsBar->setLayout(controlsLayout);
 
     // Set widgets in layouts
