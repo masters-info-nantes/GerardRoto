@@ -101,6 +101,7 @@ private:
     const static int CURSOR_LINE = 2;
     const static int CURSOR_ERASER= 3;
     QCursor * toolCursor;
+    bool mayDisplayToolCursor;
 
     bool perspective;// true = no project | false = project open
     QString projectName;
@@ -114,6 +115,7 @@ private:
 
     bool allDrawSaved;
     SequenceWidget* previewWidget;
+    bool previewRunning;
 
     ImageWidget* noProjectOpenedView;
 public:

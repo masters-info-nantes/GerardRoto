@@ -12,6 +12,9 @@ QString* drawImageName(QString s)
 
 MainWindow::MainWindow(QWidget *parent)
     :QMainWindow(parent),
+      imageView(new StackImage()),
+      drawzone(new DrawZone(1000,600)),
+      mayDisplayToolCursor(false),
       perspective(false),
       projectFullPath(""),
       currentIndex(-1),
@@ -20,19 +23,18 @@ MainWindow::MainWindow(QWidget *parent)
       peelingsCount(DEFAULT_PEELINGS_COUNT),
       allDrawSaved(true),
       previewWidget(new SequenceWidget()),
+      previewRunning(false),
       noProjectOpenedView(0)
 {
     // Create widgets
-    this->imageView = new StackImage();
-    drawzone = new DrawZone(1000,600);
 
     this->thumbnailsList = new QListWidget();
     this->thumbnailsList->setFixedHeight(130);
     this->thumbnailsList->setFlow(QListView::LeftToRight);
-    //this->thumbnailsList->setSpacing(6);
     connect(this->thumbnailsList, SIGNAL(currentRowChanged(int)), this, SLOT(thumbClick(int)));
 
-    QGridLayout* drawLayout = new QGridLayout();
+    QGridLayout* drawLayout(new QGridLayout());
+
     this->buttonFreeDraw = new QPushButton();
     connect(this->buttonFreeDraw, SIGNAL(clicked()), this, SLOT(freeDraw()));
     this->buttonFreeDraw->setIcon(QIcon(QPixmap(":icons/img/icons/pencil.png")));
@@ -49,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->buttonEraser->setIcon(QIcon(QPixmap(":icons/img/icons/eraser.png")));
     this->buttonEraser->setCheckable(true);
 
-    QButtonGroup* drawButtonGroup = new QButtonGroup();
+    QButtonGroup* drawButtonGroup(new QButtonGroup());
     drawButtonGroup->addButton(this->buttonFreeDraw);
     drawButtonGroup->addButton(this->buttonLineDraw);
     drawButtonGroup->addButton(this->buttonEraser);
@@ -85,7 +87,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->controlsBar = new QWidget();
     this->controlsBar->setMaximumSize(1000, 50);
 
-    QHBoxLayout* controlsLayout = new QHBoxLayout();
+    QHBoxLayout* controlsLayout(new QHBoxLayout());
     this->buttonBegin = new QPushButton();
     this->buttonBegin->setIcon(QIcon(QPixmap(":icons/img/icons/begin.png")));
     connect(this->buttonBegin, SIGNAL(clicked()), this, SLOT(begin()));
@@ -925,6 +927,7 @@ void MainWindow::playImage(int start, bool movieImage)
         delete drawName;
     }
     this->previewWidget->setTime(sleeptime);
+    this->previewRunning = true;
     this->previewWidget->start();
 }
 
@@ -962,9 +965,14 @@ void MainWindow::endOfAnimation()
     prev->clear();
     delete prev;
     this->imageView->push(this->drawzone);
+    this->previewRunning = false;
     QLabel* item((QLabel*)this->thumbnailsList->itemWidget(this->thumbnailsList->item(this->currentIndex)));
     this->imageView->push(item->toolTip());
     this->changeCurrentImage(this->currentIndex);
+    if(this->mayDisplayToolCursor)
+    {
+        this->setCursor(*toolCursor);
+    }
 }
 
 void MainWindow::about(){
@@ -973,12 +981,14 @@ void MainWindow::about(){
 
 void MainWindow::mouseEnterDrawZone()
 {
-    if(!this->perspective)
+    this->mayDisplayToolCursor = true;
+    if(!this->perspective && !this->previewRunning)
         this->setCursor(*toolCursor);
 }
 
 void MainWindow::mouseLeaveDrawZone()
 {
+    this->mayDisplayToolCursor = false;
     this->setCursor(*cursors[CURSOR_BASE]);
 }
 
