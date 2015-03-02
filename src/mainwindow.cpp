@@ -250,12 +250,15 @@ void MainWindow::createActions()
 
 
      this->freeDrawAction = new QAction(tr("&Tracé libre"), this);
+     this->freeDrawAction->setShortcut(Qt::CTRL + Qt::Key_1);
      connect(freeDrawAction, SIGNAL(triggered()), this, SLOT(freeDraw()));
 
      this->lineDrawAction = new QAction(tr("&Tracé en lignes"), this);
+     this->lineDrawAction->setShortcut(Qt::CTRL + Qt::Key_2);
      connect(lineDrawAction, SIGNAL(triggered()), this, SLOT(lineDraw()));
 
      this->eraserAction = new QAction(tr("&Gomme"), this);
+     this->eraserAction->setShortcut(Qt::CTRL + Qt::Key_3);
      connect(eraserAction, SIGNAL(triggered()), this, SLOT(eraser()));
 
      // Layers menu
@@ -798,18 +801,42 @@ void MainWindow::redo(){
 }
 
 void MainWindow::freeDraw(){
-    this->drawzone->setTool(DrawZone::TOOL_PEN);
-    toolCursor = cursors[CURSOR_FREE];
+    if(this->toolCursor != cursors[CURSOR_FREE])
+    {
+        this->buttonFreeDraw->setChecked(true);
+        this->drawzone->setTool(DrawZone::TOOL_PEN);
+        this->toolCursor = cursors[CURSOR_FREE];
+        if(this->mayDisplayToolCursor)
+        {
+            this->mouseEnterDrawZone();
+        }
+    }
 }
 
 void MainWindow::lineDraw(){
-    this->drawzone->setTool(DrawZone::TOOL_LINE);
-    toolCursor = cursors[CURSOR_LINE];
+    if(this->toolCursor != cursors[CURSOR_LINE])
+    {
+        this->buttonLineDraw->setChecked(true);
+        this->drawzone->setTool(DrawZone::TOOL_LINE);
+        this->toolCursor = cursors[CURSOR_LINE];
+        if(this->mayDisplayToolCursor)
+        {
+            this->mouseEnterDrawZone();
+        }
+    }
 }
 
 void MainWindow::eraser(){
-    this->drawzone->setTool(DrawZone::TOOL_RUBBER);
-    toolCursor = cursors[CURSOR_ERASER];
+    if(this->toolCursor != cursors[CURSOR_ERASER])
+    {
+        this->buttonEraser->setChecked(true);
+        this->drawzone->setTool(DrawZone::TOOL_RUBBER);
+        this->toolCursor = cursors[CURSOR_ERASER];
+        if(this->mayDisplayToolCursor)
+        {
+            this->mouseEnterDrawZone();
+        }
+    }
 }
 
 void MainWindow::changePenWidth(int width){
