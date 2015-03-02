@@ -754,6 +754,8 @@ void MainWindow::exportDrawWithMovie(){
 }
 
 void MainWindow::close(bool force){
+    if(this->previewRunning)
+        return;
     if(!force && (this->perspective || !beforeClose()))
     {
         return;
@@ -848,6 +850,8 @@ void MainWindow::changePenColor(QColor color){
 }
 
 void MainWindow::displayBackgroundMovie(bool active){
+    if(this->previewRunning)
+        return;
     if(!this->perspective && this->backgroundDisplayed != active)
     {
         this->backgroundDisplayed = active;
@@ -867,6 +871,8 @@ void MainWindow::displayBackgroundMovie(bool active){
 }
 
 void MainWindow::onionPeelings(bool active){
+    if(this->previewRunning)
+        return;
     if(!this->perspective && this->onionDisplayed != active)
     {
         if(active)
@@ -911,6 +917,8 @@ void MainWindow::onionPeelings(bool active){
 }
 
 void MainWindow::peelingsNumber(){
+    if(this->previewRunning)
+        return;
     this->peelingsCount = QInputDialog::getInt(this, "Pelures d'oignons", "Nombre de pelures à afficher", this->peelingsCount, 0, 12);
 
     if(this->onionDisplayed){
@@ -920,29 +928,53 @@ void MainWindow::peelingsNumber(){
 }
 
 void MainWindow::back(){
+    if(this->previewRunning)
+        return;
     int backIndex = this->thumbnailsList->currentRow() - 1;
     this->changeCurrentImage(backIndex);
 }
 
 void MainWindow::next(){
+    if(this->previewRunning)
+        return;
     int nextIndex = this->thumbnailsList->currentRow() + 1;
     this->changeCurrentImage(nextIndex);
 }
 
 void MainWindow::begin(){
+    if(this->previewRunning)
+        return;
     this->changeCurrentImage(0);
 }
 
 void MainWindow::end(){
+    if(this->previewRunning)
+        return;
     this->changeCurrentImage(this->thumbnailsList->count() - 1);
 }
 
 void MainWindow::goFrame(){
+    if(this->previewRunning)
+        return;
     this->changeCurrentImage(this->frameNumber->text().toInt() - 1);
 }
 
 void MainWindow::playImage(int start, bool movieImage)
 {
+    if(this->previewRunning)
+        return;
+
+    this->buttonBegin->setEnabled(false);
+    this->buttonBack->setEnabled(false);
+    this->frameNumber->setEnabled(false);
+    this->buttonGoFrame->setEnabled(false);
+    this->numberPreviousFrames->setEnabled(false);
+    this->buttonPlayDraws->setEnabled(false);
+    this->checkPlayWithMovie->setEnabled(false);
+    this->buttonPlayFull->setEnabled(false);
+    this->buttonNext->setEnabled(false);
+    this->buttonEnd->setEnabled(false);
+
     int fps = 6;
     int sleeptime(1000/fps);
     while(this->imageView->stackCount() > 1)
@@ -1007,6 +1039,17 @@ void MainWindow::playFromBeginningNoMovie()
 
 void MainWindow::endOfAnimation()
 {
+    this->buttonBegin->setEnabled(true);
+    this->buttonBack->setEnabled(true);
+    this->frameNumber->setEnabled(true);
+    this->buttonGoFrame->setEnabled(true);
+    this->numberPreviousFrames->setEnabled(true);
+    this->buttonPlayDraws->setEnabled(true);
+    this->checkPlayWithMovie->setEnabled(true);
+    this->buttonPlayFull->setEnabled(true);
+    this->buttonNext->setEnabled(true);
+    this->buttonEnd->setEnabled(true);
+
     this->imageView->removeBottom();// same widget each time
     QVector<QWidget*>* prev(this->previewWidget->removeAll());// created by MainWindow::playImage()
     prev->clear();
